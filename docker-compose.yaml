@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  election:
+    image: election
+    ports:
+        - "3000:3000"
+    environment:
+      DB_HOST: db
+      WAIT_HOSTS: postgres:5432
+    command: "npx pm2 start ecosystem.config.js --no-daemon"
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: docker
+      POSTGRES_USER: root
+      POSTGRES_DB: election
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"

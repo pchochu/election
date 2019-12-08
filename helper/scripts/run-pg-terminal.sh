@@ -1,0 +1,1 @@
+docker exec -it election-postgresss psql -U root -W election

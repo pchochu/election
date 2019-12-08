@@ -1,0 +1,9 @@
+DROP TABLE voter;
+
+CREATE TABLE voter(
+                        ID  SERIAL PRIMARY KEY,
+                        id_voter text NOT NULL,
+                        id_election text NOT NULL,
+                        voted boolean NOT NULL
+                        
+);
