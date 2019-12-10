@@ -59,6 +59,7 @@ contract Election{
     uint public winner_num_of_votes;
     uint public proposalIsSet;
     uint public proposalIsRunning;
+    string public proposal_result;
     
     modifier restricted(){
         require(administrators[msg.sender]);
@@ -104,6 +105,13 @@ contract Election{
         require(msg.sender == manager);
         id_winner = id;
         winner_num_of_votes = numOfVotes;
+    }
+
+    function setResultOfProposal(string resultOfProposal) public{
+        require(keccak256(proposal_result) == keccak256(''));
+        require(administratorsCount == approvalsToFinishProposalCount);
+        require(msg.sender == manager);
+        proposal_result = resultOfProposal;
     }
     
     function addHashOfVotes(bytes32 hash) public restricted{

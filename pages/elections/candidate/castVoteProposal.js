@@ -78,7 +78,7 @@ class CastVoteProposal extends Component{
 			// 	return
 			// }
 
-			const vote = await axios.get(constants.ADDRESS + '/didUserVote',
+			const vote = await axios.get(constants.ADDRESS + '/didUserVoteProposal',
 			{ 
 				params: {
 					election_address:this.props.address,
@@ -88,26 +88,26 @@ class CastVoteProposal extends Component{
 			
 
 			if(vote.data.length > 0){
-				this.setState({ errorMessage: "Už si hlasoval, nemôžes hlasovať viac krát"})
+				this.setState({ errorMessage: "Už si navrhol kandidata, nemôžes navrhnut viac kandidatov"})
 				return
 			}
 			
 			const election = await Election(this.props.address)
 			const rsa_pub_key = await election.methods.RSA_pub_key().call()
 
-			const response = await axios.put(constants.ADDRESS +  '/newVote', 
+			const response = await axios.put(constants.ADDRESS +  '/newVoteProposal', 
 			{
 				address: this.props.address,
-				id_candidate: this.props.id,
+				id_candidate: this.state.xlogin,
 				id_voter: this.state.login,
 				rsa_pub_key: rsa_pub_key
 			})
 
-			// const responseLDAP = await axios.put(constants.ADDRESS +  '/newVoteLDAP', 
-			// {
-			// 	address: this.props.address,
-			// 	id_voter: this.state.login
-			// })
+			const responseLDAP = await axios.put(constants.ADDRESS +  '/newVoteLDAPProposal', 
+			{
+				address: this.props.address,
+				id_voter: this.state.login
+			})
 
 
 			this.setState({ key: response.data})

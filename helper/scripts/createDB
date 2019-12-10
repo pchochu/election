@@ -39,3 +39,19 @@ CREATE TABLE voter(
                 id_election text NOT NULL,
                 id_voter text NOT NULL
 );
+
+CREATE TABLE voteProposal (
+			ID  SERIAL PRIMARY KEY,
+			id_election text NOT NULL,
+			id_candidate text NOT NULL,
+			id_decrypted_candidate text,
+            id_voter text NOT NULL,
+			stored_on_eth TEXT NOT NULL,
+			merkle_root text NOT NULL
+			);
+
+CREATE TABLE voterProposal(
+                ID  SERIAL PRIMARY KEY,
+                id_election text NOT NULL,
+                id_voter text NOT NULL
+);

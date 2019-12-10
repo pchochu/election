@@ -235,6 +235,19 @@ const didUserVote = async(props) => {
 		}
 }
 
+const didUserVoteProposal = async(props) => {
+	const pool = connection.getPool();
+	try{
+		var sql = `SELECT * FROM voterProposal WHERE id_election = 
+		'`+props.address+`' AND id_voter = '`+props.id_voter+`' ;`
+		const res = await pool.query(sql)
+		await pool.end()
+		return res.rows;
+	} catch (error){
+		console.log('db error', error)
+		}
+}
+
 const getAllUserVote = async(props) => {
 	const pool = connection.getPool();
 	try{
@@ -334,10 +347,38 @@ const newVote = async(props) => {
 	}
 }
 
+const newVoteProposal = async(props) => {
+	const pool = connection.getPool();
+	try{
+		sql = `INSERT INTO voteProposal (id_election, id_candidate, id_voter, stored_on_eth, merkle_root) VALUES (
+			'`+props.address_election+`',
+			'`+props.candidate_id+`',
+			'`+props.voter_id+`',
+			'0', '0')`
+		await pool.query(sql)
+		await pool.end()
+	} catch (error){
+		console.log('db error', error)
+	}
+}
+
 const newVoteLDAP = async(props) => {
 	const pool = connection.getPool();
 	try{
 		sql = `INSERT INTO voter (id_election, id_voter) VALUES (
+			'`+props.address_election+`',
+			'`+props.voter_id+`')`
+		await pool.query(sql)
+		await pool.end()
+	} catch (error){
+		console.log('db error', error)
+	}
+}
+
+const newVoteLDAPProposal = async(props) => {
+	const pool = connection.getPool();
+	try{
+		sql = `INSERT INTO voterProposal (id_election, id_voter) VALUES (
 			'`+props.address_election+`',
 			'`+props.voter_id+`')`
 		await pool.query(sql)
@@ -408,5 +449,8 @@ module.exports =
 	decryptVote,
 	getVotesResults,
 	didUserVote,
-	votedInElection
+	votedInElection,
+	newVoteProposal,
+	didUserVoteProposal,
+	newVoteLDAPProposal
 }

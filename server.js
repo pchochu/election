@@ -302,6 +302,21 @@ app.prepare().then(() => {
     }
   })
 
+  httpApp.get('/didUserVoteProposal', async(req, res) => {
+    try {
+      const vote = await queries.didUserVoteProposal({
+        address:req.query.election_address,
+        id_voter:req.query.id_voter
+      });	
+
+
+      return res.send(vote)
+    } catch (error) {
+      console.log('Error fetch didUserVoteProposal', error);
+      return res.sendStatus(500);
+    }
+  })
+
   httpApp.get('/getVotedInElection', async(req, res) => {
     try {
       const vote = await queries.getVotedInElection({
@@ -452,6 +467,38 @@ app.prepare().then(() => {
     }
   })
 
+  httpApp.put('/newVoteProposal', async(req, res) => {
+
+    console.log(req.body.rsa_pub_key)
+    console.log(req.body.id_candidate)
+    console.log(req.body.id_voter)
+    console.log(req.body.address)
+    try {
+    const rsa_pub_key_election = req.body.rsa_pub_key  
+    const keyCandidate = new NodeRSA({b: 512});
+    const keyVoter = new NodeRSA({b: 512});
+
+    keyCandidate.importKey(rsa_pub_key_election, 'pkcs8-public-pem')
+
+    const candidate = keyCandidate.encrypt(req.body.id_candidate, 'base64');
+    const voter = keyVoter.encrypt(req.body.id_voter, 'base64')
+
+    const privateKeyVoter = keyVoter.exportKey('pkcs8-private-pem')
+
+ 
+      const response = await queries.newVoteProposal(
+        {
+          address_election:req.body.address,
+          candidate_id: candidate,
+          voter_id: voter,      
+        });
+      return res.send(privateKeyVoter)
+    } catch (error) {
+      console.log('Error put newVoteProposal', error);
+      return res.sendStatus(500);
+    }
+  })
+
   httpApp.put('/newVoteLDAP', async(req, res) => {
     try {
       const response = await queries.newVoteLDAP(
@@ -462,6 +509,21 @@ app.prepare().then(() => {
       return res.send(response)
     } catch (error) {
       console.log('Error put newVoteLDAP', error);
+      return res.sendStatus(500);
+    }
+  })
+
+  
+  httpApp.put('/newVoteLDAPProposal', async(req, res) => {
+    try {
+      const response = await queries.newVoteLDAPProposal(
+        {
+          address_election:req.body.address,
+          voter_id: req.body.id_voter
+        });
+      return res.send(response)
+    } catch (error) {
+      console.log('Error put newVoteLDAPProposal', error);
       return res.sendStatus(500);
     }
   })
