@@ -157,6 +157,19 @@ app.prepare().then(() => {
       return res.sendStatus(500);
     }
   })
+
+  httpApp.put('/setProposalAsFinished', async(req, res) => {
+    try {
+      const response = await queries.setProposalAsFinished(
+        {
+          address: req.body.address,
+        });
+      return res.send(response)
+    } catch (error) {
+      console.log('Error setProposalAsFinished', error);
+      return res.sendStatus(500);
+    }
+  })
   
   
   httpApp.get('/candidates', async(req, res) => {
@@ -585,12 +598,36 @@ app.prepare().then(() => {
       const tree = new MerkleTree(leaves, SHA256)
       const root = tree.getRoot().toString('hex')
       const dataToReturn = {root: root, numberOfVotes: data.length}
-      //MerkleTree.print(tree)
-      //const leaf = SHA256('Q1Xilt5y5DMle3pnyHi+lgyOjSNPRspp9U2A6bao3RyBU9HLRbtQkurGgMv7ZPo7/sKxqZmwZTuPmG6pRgGpoA==')
-      //const proof = tree.getProof(leaf)
-      //console.log(tree.verify(proof, leaf, root))
-      //var print = tree.leaves.map(x => x.toString('hex'))	
+
       await queries.updateNonVotesToPending({
+        address:address
+      });
+      return res.send(dataToReturn)
+    } else {
+      return res.send({numberOfVotes: 0})
+    }
+    } catch (error) {
+      console.log('Error put createStoreUploadMerkle', error);
+      return res.sendStatus(500);
+    }
+  })
+
+  httpApp.get('/createMerkleRootProposal', async(req, res) => {
+    try {
+      const address = req.query.address
+      const votes = await queries.getNonVotesProposal({
+        address: address
+        });
+      
+      
+      if(votes.length > 0){
+      var data = votes.map(x => x.id_candidate)
+      const leaves = data.map(x => SHA256(x))
+      const tree = new MerkleTree(leaves, SHA256)
+      const root = tree.getRoot().toString('hex')
+      const dataToReturn = {root: root, numberOfVotes: data.length}
+
+      await queries.updateNonVotesToPendingProposal({
         address:address
       });
       return res.send(dataToReturn)
@@ -615,6 +652,22 @@ app.prepare().then(() => {
       return res.send(response)
     } catch (error) {
       console.log('Error put updatePendingVotesToStored', error);
+      return res.sendStatus(500);
+    }
+  })
+
+  httpApp.put('/updatePendingVotesToStoredProposal', async(req, res) => {
+    try {
+      const address = req.body.address
+      const root = req.body.root
+  
+      response = await queries.updatePendingVotesToStoredProposal({
+        address:address,
+        root: root
+      });
+      return res.send(response)
+    } catch (error) {
+      console.log('Error put updatePendingVotesToStoredProposal', error);
       return res.sendStatus(500);
     }
   })

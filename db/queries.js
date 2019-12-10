@@ -53,6 +53,19 @@ const getNonVotes = async(props) => {
 		}
 }
 
+const getNonVotesProposal = async(props) => {
+	const pool = connection.getPool();
+	try{
+		var sql = `SELECT id_candidate FROM voteProposal WHERE id_election = 
+		'`+props.address+`' AND stored_on_eth = '0';`
+		const res = await pool.query(sql)
+		await pool.end()
+		return res.rows;
+	} catch (error){
+		console.log('db error', error)
+		}
+}
+
 const getVotes = async(props) => {
 	const pool = connection.getPool();
 	try{
@@ -117,10 +130,35 @@ const updateNonVotesToPending = async(props) => {
 		}
 }
 
+const updateNonVotesToPendingProposal = async(props) => {
+	const pool = connection.getPool();
+	try{
+		var sql = `UPDATE voteProposal SET stored_on_eth = 'pending' WHERE id_election = 
+		'`+props.address+`' AND stored_on_eth = '0';`
+		await pool.query(sql)
+		await pool.end()
+	} catch (error){
+		console.log('db error', error)
+		}
+}
+
 const updatePendingVotesToStored = async(props) => {
 	const pool = connection.getPool();
 	try{
 		var sql = `UPDATE vote SET stored_on_eth = '1', merkle_root= '`+props.root+`' 
+		WHERE id_election = '`+props.address+`'
+		 AND stored_on_eth = 'pending';`
+		await pool.query(sql)
+		await pool.end()
+	} catch (error){
+		console.log('db error', error)
+		}
+}
+
+const updatePendingVotesToStoredProposal = async(props) => {
+	const pool = connection.getPool();
+	try{
+		var sql = `UPDATE voteProposal SET stored_on_eth = '1', merkle_root= '`+props.root+`' 
 		WHERE id_election = '`+props.address+`'
 		 AND stored_on_eth = 'pending';`
 		await pool.query(sql)
@@ -199,6 +237,19 @@ const setElectionAsFinished= async(props) => {
 	const pool = connection.getPool();
 	try{
 		sql = `UPDATE election SET is_created = 'finished_no_uploaded'
+				WHERE election_address =
+	   			'`+props.address+`'`
+		await pool.query(sql)
+		await pool.end()
+	} catch (error){
+		console.log('db error', error)
+	}
+}
+
+const setProposalAsFinished= async(props) => {
+	const pool = connection.getPool();
+	try{
+		sql = `UPDATE election SET is_created = 'finished_proposal_no_uploaded'
 				WHERE election_address =
 	   			'`+props.address+`'`
 		await pool.query(sql)
@@ -452,5 +503,9 @@ module.exports =
 	votedInElection,
 	newVoteProposal,
 	didUserVoteProposal,
-	newVoteLDAPProposal
+	newVoteLDAPProposal,
+	updateNonVotesToPendingProposal,
+	getNonVotesProposal,
+	updatePendingVotesToStoredProposal,
+	setProposalAsFinished
 }

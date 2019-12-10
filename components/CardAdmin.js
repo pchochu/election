@@ -97,9 +97,9 @@ class CardAdmin extends Component{
         } catch (e) {
             console.log(e.message);
         }
-        // console.log(this.props.electionInfoEth['numOfAdmins'])
+
         const finish = parseInt(this.props.electionInfoEth['numOfAdminFinish']) + 1
-        // console.log(finish)
+
         if(this.props.electionInfoEth['numOfAdmins'] == finish.toString()){
             this.electionFinished()
             Router.pushRoute(`/elections/${accounts[0]}/administrationElections/`)  
