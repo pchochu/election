@@ -115,15 +115,6 @@ class CastVoteProposal extends Component{
 			this.downloadTxtFile()
 			alert('Vyborne, zahlasoval si a stiahol sa ti privatny kluc')
 
-/* 			axios.put(constants.ADDRESS + '/addVotesToCandidates', 
-			{
-			address: this.props.address,
-			id_candidate: this.props.id,
-			eth_candidates: this.props.ethCandidates
-			},
-			).catch(function (error) {
-			console.log(error);
-          });	 */
       }catch (e){
 	  }
 
