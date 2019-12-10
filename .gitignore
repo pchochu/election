@@ -1,2 +1,5 @@
 node_modules
 .next
+.gitignore
+.dockerignore
+install_nvm.sh
