@@ -4,6 +4,7 @@ routes
   .add('/elections/:address', '/elections/show')
   .add('/elections/:address/crypto/genKeys', 'elections/crypto/genKeys')
   .add('/elections/:address/crypto/submitResult/:account', 'elections/crypto/submitResult')
+  .add('/elections/:address/crypto/submitResultProposal/:account', 'elections/crypto/submitResultProposal')
   .add('/elections/crypto/controlVote', 'elections/crypto/controlVote')
   .add('/elections/:address/crypto/controlVoteAtAddress', 'elections/crypto/controlVoteAtAddress')
   .add('/elections/:address/candidate/new', '/elections/candidate/new')

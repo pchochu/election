@@ -241,6 +241,34 @@ app.prepare().then(() => {
       return res.sendStatus(500);
     }
   })
+
+  httpApp.get('/getResultProposal', async(req, res) => {
+    try {
+      const votesDBProposal = await queries.getVotesProposal({
+        address:req.query.election_address
+        });
+  
+      var votesArray = votesDBProposal.map(x => x.id_candidate)  
+      const key = new NodeRSA(req.query.RSAkey)
+      var votesDecrypted = votesArray.map((vote, index) => {
+        return key.decrypt(vote, 'utf8');
+       })
+
+      var occurrences = { };
+      for (var i = 0, j = votesDecrypted.length; i < j; i++) {
+        occurrences[votesDecrypted[i]] = (occurrences[votesDecrypted[i]] || 0) + 1;
+      }
+
+      var myJSON = JSON.stringify(occurrences);
+      var JSONString = JSON.stringify(myJSON);
+
+
+      return res.send(JSONString)
+    } catch (error) {
+      console.log('Error fetch getResultProposal', error.message);
+      return res.sendStatus(500);
+    }
+  })
   
   
   

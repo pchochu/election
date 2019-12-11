@@ -5,9 +5,9 @@ import web3 from '../ethereum/web3'
 
 class CardFactoryProposal extends Component{
 
-    publishResults = async (event) => {
+    publishResultsProposal = async (event) => {
         const accounts = await web3.eth.getAccounts()
-        Router.pushRoute(`/elections/${this.props.address['address']}/crypto/submitResult/${accounts[0]}`)
+        Router.pushRoute(`/elections/${this.props.address['address']}/crypto/submitResultProposal/${accounts[0]}`)
       };
 
       renderCard() {
@@ -15,9 +15,9 @@ class CardFactoryProposal extends Component{
             if(this.props.electionInfoEth['winnerId'] == 0){
                 return <Button animated onClick={ () =>{
                         event.preventDefault();
-                        this.publishResults()
+                        this.publishResultsProposal()
                         }}>
-                        <Button.Content visible>Nahraj vysledky</Button.Content>
+                        <Button.Content visible>Nahraj vysledky navrhoveho kola</Button.Content>
                         <Button.Content hidden>
                             <Icon name='key' />
                         </Button.Content>

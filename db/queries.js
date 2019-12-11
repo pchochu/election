@@ -79,6 +79,19 @@ const getVotes = async(props) => {
 		}
 }
 
+const getVotesProposal = async(props) => {
+	const pool = connection.getPool();
+	try{
+		var sql = `SELECT id_candidate FROM voteProposal WHERE id_election = 
+		'`+props.address+`';`
+		const res = await pool.query(sql)
+		await pool.end()
+		return res.rows;
+	} catch (error){
+		console.log('db error', error)
+		}
+}
+
 const getVotesResults = async(props) => {
 	const pool = connection.getPool();
 	try{
@@ -507,5 +520,6 @@ module.exports =
 	updateNonVotesToPendingProposal,
 	getNonVotesProposal,
 	updatePendingVotesToStoredProposal,
-	setProposalAsFinished
+	setProposalAsFinished,
+	getVotesProposal
 }
