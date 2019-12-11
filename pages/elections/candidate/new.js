@@ -18,21 +18,34 @@ class CandidateNew extends Component{
 
 	static async getInitialProps(props){
 		const {address, req} = props.query;
-
-		if(req){
-			// server. mozno rovno robit SQL dotaz
-		} 
-			
-		// prehliadac len mozne robit HTTP requesty
-		//try {
-		//	const response = await axios.get('http://localhost:4000/users');
-			  
-		//	users = response.data;
-		//} catch(error) {
-		//	console.log('err', error)
-		//}
 		
-		return {address };
+		const election = Election(address);
+		const candidateCount = await election.methods.getCandidateCount().call()
+
+		const candidatesEthereum = await Promise.all(
+			Array(parseInt(candidateCount))
+				.fill()
+				.map((element, index) => {
+				return election.methods.candidates(index).call()
+			})
+		);
+
+		const isProposal = await election.methods.proposalIsSet().call()
+
+		var proposalJson
+		if(isProposal){
+			proposalJson = await election.methods.proposal_result().call()
+		} else{
+			proposalJson = ''
+		}
+
+		console.log(proposalJson)
+
+		return {
+			address:address, 
+			ethCandidates:candidatesEthereum, 
+			proposalCandidates: proposalJson 
+		};
 	}
 
 
@@ -81,6 +94,53 @@ class CandidateNew extends Component{
 		this.setState({loading:false});
 	};
 
+	renderDetails(){
+		let candidates = this.props.ethCandidates.map((candidate, index) => {
+			return <tr key={candidate['last_name']}>
+				<td data-label="Name">{candidate['first_name']}</td>
+				<td data-label="Age">{candidate['last_name']}</td>
+			</tr>
+	   })
+	   return candidates
+	}
+
+	renderCandidates() {
+		if(this.props.ethCandidates[0] != undefined){
+			return  <table class="ui celled table">
+				<thead>
+				<tr>
+					<th>Krstne meno</th>
+					<th>Priezvisko</th>
+				</tr></thead>
+				<tbody>
+					{this.renderDetails()}		  
+				</tbody>
+		</table>
+		} else{
+			return <div class="ui compact message">
+			<p>V tychto volbach nie je zapisany este ziadny kandidat</p>
+		  </div>
+		}
+}
+
+renderProposalCandidates() {
+	if(this.props.proposalJson != ''){
+		return  <table class="ui celled table">
+			<thead>
+			<tr>
+				<th>Krstne meno</th>
+				<th>Priezvisko</th>
+			</tr></thead>
+			<tbody>
+				{this.renderDetails()}		  
+			</tbody>
+		</table>
+		} else{
+			return <div class="ui compact message">
+			<p>V tychto volbach nie je zapisany este ziadny kandidat</p>
+		</div>
+		}
+}
 
 	render(){
 		return(
@@ -117,6 +177,12 @@ class CandidateNew extends Component{
 						<Message error header="Ojoj, niečo sa pokazilo!" content={this.state.errorMessage} />
 						<Button color={constants.COLOR} loading={this.state.loading}>Vytvor kandidáta</Button>
 					</Form>
+					<br></br>
+					<h3>Kandidujuci kandidati</h3>
+					{this.renderCandidates()}
+					<h3>Kandidati z navrhoveho kola</h3>
+					{this.renderProposalCandidates()}
+
 			</Layout>
 			);
 	}
