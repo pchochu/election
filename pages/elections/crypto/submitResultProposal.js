@@ -26,9 +26,12 @@ class SubmitResultsProposal extends Component{
 			const election = Election(this.props.address);
 
 			this.setState({loading:true})
+			
+			let obj = JSON.stringify(this.state.results)
+
 
 			await election.methods
-				.setWinner(this.state.results[0]['candidate_contract_id'], this.state.results[0]['numberOfVotes'])
+				.setResultOfProposal(this.state.results)
 				.send({
 					from: this.props.account
 				})
@@ -68,12 +71,6 @@ class SubmitResultsProposal extends Component{
 		}
 		
 		this.setState({results: getResults.data})
-
-		// let msg = this.state.results.map((result, index) => {
-		// 	let winner = result['first_name'] + ' ' + result['last_name']
-		// 	let numberOfVotesCandidate = (result['numberOfVotes'] === undefined)?0:resul['numberOfVotes']
-		// 	return winner + ' ziskal ' + numberOfVotesCandidate + ' hlasov '
-		// })
 
 		var obj = JSON.parse(getResults.data)
 
