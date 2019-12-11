@@ -23,18 +23,33 @@ class SubmitResultsProposal extends Component{
 
 	uploadWinner = async event => {
 		try{
+			if(this.state.results == '')
+			{
+				this.setState({ errorMessage: 'Neurceny vitaz' })
+				this.setState({ loading: false });
+				return
+			}
 			const election = Election(this.props.address);
 
 			this.setState({loading:true})
-			
-			let obj = JSON.stringify(this.state.results)
 
 
 			await election.methods
-				.setResultOfProposal(this.state.results)
+				.setProposalIsSet()
 				.send({
 					from: this.props.account
 				})
+			
+			await election.methods
+			.setResultOfProposal(this.state.results)
+			.send({
+				from: this.props.account
+			})
+			
+			await axios.put(constants.ADDRESS + '/setFinishedUploadedProposal',
+			{ 
+                	election_address:this.props.address,
+			});
 
 			this.setState({loading:false})
 
@@ -76,7 +91,7 @@ class SubmitResultsProposal extends Component{
 
 		let resultInMsg = ''
 		for (var prop in obj) {
-			resultInMsg = 'Kandidat ' + prop + ': ' + obj[prop] + '\n'
+			resultInMsg = resultInMsg + 'Kandidat ' + prop + ': ' + obj[prop] + '\n'
 		  }
 	
 		this.setState({msg: resultInMsg})

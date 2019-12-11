@@ -2,6 +2,8 @@ DROP TABLE candidate;
 DROP TABLE election;
 DROP TABLE vote;
 DROP TABLE voter;
+DROP TABLE voteProposal;
+DROP TABLE voterProposal;
 
 CREATE TABLE candidate (
 			ID  SERIAL PRIMARY KEY,

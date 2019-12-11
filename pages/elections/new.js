@@ -250,15 +250,6 @@ class ElectionNew extends React.Component {
 	onClickHandler = async () => {
 		const data = new FormData()
 		data.append('file', this.state.selectedFile)
-
-		// const response2 = await axios.post(constants.ADDRESS + "/uploadLDAP", data, {
-		// 	headers: {
-		// 		'Content-Type': 'multipart/form-data'
-		// 	},
-		// 	params:{
-		// 		address: this.state.address
-		// 	}
-		// })
 		
 		const response = await axios.post(constants.ADDRESS + "/upload", data, {
 			headers: {

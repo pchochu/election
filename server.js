@@ -270,6 +270,16 @@ app.prepare().then(() => {
     }
   })
   
+  httpApp.put('/setFinishedUploadedProposal', async(req, res) => {
+    try {
+        console.log(req.body.election_address)
+        resp = await queries.setFinishedUploadedProposal({address:req.body.election_address});
+        return res.send(resp)
+    } catch (error) {
+      console.log('Error put setFinishedUploadedProposal', error.message);
+      return res.sendStatus(500);
+    }
+  })
   
   
   httpApp.get('/getNumOfVotes', async(req, res) => {

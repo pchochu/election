@@ -272,6 +272,19 @@ const setProposalAsFinished= async(props) => {
 	}
 }
 
+const setFinishedUploadedProposal= async(props) => {
+	const pool = connection.getPool();
+	try{
+		sql = `UPDATE election SET is_created = 'created_with_keys'
+				WHERE election_address =
+	   			'`+props.address+`'`
+		await pool.query(sql)
+		await pool.end()
+	} catch (error){
+		console.log('db error', error)
+	}
+}
+
 
 const getUserIsListedInElection = async(props) => {
 	const pool = connection.getPool();
@@ -521,5 +534,6 @@ module.exports =
 	getNonVotesProposal,
 	updatePendingVotesToStoredProposal,
 	setProposalAsFinished,
-	getVotesProposal
+	getVotesProposal,
+	setFinishedUploadedProposal
 }
