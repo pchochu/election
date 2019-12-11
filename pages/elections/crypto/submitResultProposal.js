@@ -44,7 +44,7 @@ class SubmitResultsProposal extends Component{
 	}
 	onSubmit = async event => {
 		event.preventDefault();
-		this.setState({loading:true, errorMessage: ''});
+		this.setState({loading:true, errorMessage: '', msg: ''});
 		
 		if (this.state.rsa === ''){
 			this.setState({errorMessage: 'Nevyplnený parameter RSA'})
@@ -69,13 +69,20 @@ class SubmitResultsProposal extends Component{
 		
 		this.setState({results: getResults.data})
 
-		let msg = this.state.results.map((result, index) => {
-			let winner = result['first_name'] + ' ' + result['last_name']
-			let numberOfVotesCandidate = (result['numberOfVotes'] === undefined)?0:resul['numberOfVotes']
-			return winner + ' ziskal ' + numberOfVotesCandidate + ' hlasov '
-		})
+		// let msg = this.state.results.map((result, index) => {
+		// 	let winner = result['first_name'] + ' ' + result['last_name']
+		// 	let numberOfVotesCandidate = (result['numberOfVotes'] === undefined)?0:resul['numberOfVotes']
+		// 	return winner + ' ziskal ' + numberOfVotesCandidate + ' hlasov '
+		// })
 
-		this.setState({msg:msg})
+		var obj = JSON.parse(getResults.data)
+
+		let resultInMsg = ''
+		for (var prop in obj) {
+			resultInMsg = 'Kandidat ' + prop + ': ' + obj[prop] + '\n'
+		  }
+	
+		this.setState({msg: resultInMsg})
 		this.setState({loading:false});
 	};
 
@@ -98,7 +105,7 @@ class SubmitResultsProposal extends Component{
 								onChange={event => this.setState({rsa: event.target.value})} />
 						</Form.Field>
 						
-						<Message success header='Výborne!' content={this.state.msg.map((m, index) => { return m })}/> 
+						<Message success header='Výborne!' content={this.state.msg}/> 
 						<Message error header="Ojoj, niečo sa pokazilo!" content={this.state.errorMessage} />
 						<Button color={constants.COLOR} loading={this.state.loading}>Urci vitaza</Button>
 					</Form>
