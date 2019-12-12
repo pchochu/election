@@ -193,6 +193,18 @@ const decryptVote = async(props) => {
 		}
 }
 
+const decryptVoteProposal = async(props) => {
+	const pool = connection.getPool();
+	try{
+		var sql = `UPDATE voteProposal SET id_decrypted_candidate = '`+props.id_candidate_decrypted +`' WHERE id_candidate = 
+		'`+props.id_candidate_encrypted+`';`
+		await pool.query(sql)
+		await pool.end()
+	} catch (error){
+		console.log('db error', error)
+		}
+}
+
 const addPubKey = async(props) => {
 	const pool = connection.getPool();
 	try{

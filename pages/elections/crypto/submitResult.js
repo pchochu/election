@@ -23,6 +23,13 @@ class SubmitResults extends Component{
 
 	uploadWinner = async event => {
 		try{
+			if(this.state.results == '')
+			{
+				this.setState({ errorMessage: 'Neurceny vitaz' })
+				this.setState({ loading: false });
+				return
+			}
+			
 			const election = Election(this.props.address);
 
 			this.setState({loading:true})
@@ -71,7 +78,7 @@ class SubmitResults extends Component{
 
 		let msg = this.state.results.map((result, index) => {
 			let winner = result['first_name'] + ' ' + result['last_name']
-			let numberOfVotesCandidate = (result['numberOfVotes'] === undefined)?0:resul['numberOfVotes']
+			let numberOfVotesCandidate = (result['numberOfVotes'] === undefined)?0:result['numberOfVotes']
 			return winner + ' ziskal ' + numberOfVotesCandidate + ' hlasov '
 		})
 

@@ -254,6 +254,13 @@ app.prepare().then(() => {
         return key.decrypt(vote, 'utf8');
        })
 
+       await Promise.all(votesDecrypted.map(async (voteDecrypted, index) => {
+        await queries.decryptVoteProposal({
+        id_candidate_decrypted:voteDecrypted,
+        id_candidate_encrypted: votesArray[index]
+      });
+    }))
+
       var occurrences = { };
       for (var i = 0, j = votesDecrypted.length; i < j; i++) {
         occurrences[votesDecrypted[i]] = (occurrences[votesDecrypted[i]] || 0) + 1;

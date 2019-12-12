@@ -84,7 +84,7 @@ class CandidateNew extends Component{
 		console.log(error);
 		});
 
-			Router.back();
+			location.reload()
 		}catch (e){
 			this.setState({errorMessage: e.message});
 		}
@@ -138,7 +138,7 @@ class CandidateNew extends Component{
 }
 
 renderProposalCandidates() {
-	if(this.props.proposalJson != ''){
+	if(this.props.proposalJson != undefined){
 		return  <table class="ui celled table">
 			<thead>
 			<tr>
