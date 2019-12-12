@@ -3,7 +3,7 @@ import Layout from '../../../components/Layout'
 import Election from '../../../ethereum/election'
 import web3 from '../../../ethereum/web3'
 import {Router} from '../../../routes'
-import {Form, Button, Message, Input, TextArea} from 'semantic-ui-react'
+import {Form, Button, Message, Input, TextArea, Checkbox} from 'semantic-ui-react'
 import axios from 'axios';
 const {constants} = require('../../../helper/constants').default;
 
@@ -38,8 +38,6 @@ class CandidateNew extends Component{
 		} else{
 			proposalJson = ''
 		}
-
-		console.log(proposalJson)
 
 		return {
 			address:address, 
@@ -104,6 +102,22 @@ class CandidateNew extends Component{
 	   return candidates
 	}
 
+
+	renderDetailsProposal(){
+		let candidates
+		if(this.props.proposalCandidates != ''){
+			var myObject = JSON.parse(this.props.proposalCandidates)
+
+			candidates = Object.keys(myObject).map(function(key, index) {
+				return <tr key={key}>
+				<td data-label="Name">{key}</td>
+				<td data-label="NumOfVotes">{myObject[key]}</td>
+				</tr>
+			});
+		}
+		return candidates
+	}
+
 	renderCandidates() {
 		if(this.props.ethCandidates[0] != undefined){
 			return  <table class="ui celled table">
@@ -128,16 +142,16 @@ renderProposalCandidates() {
 		return  <table class="ui celled table">
 			<thead>
 			<tr>
-				<th>Krstne meno</th>
-				<th>Priezvisko</th>
+				<th>xlogin</th>
+				<th>Pocet hlasov</th>
 			</tr></thead>
 			<tbody>
-				{this.renderDetails()}		  
+				{this.renderDetailsProposal()}		  
 			</tbody>
 		</table>
 		} else{
 			return <div class="ui compact message">
-			<p>V tychto volbach nie je zapisany este ziadny kandidat</p>
+			<p>V tychto volbach neprebehlo navrhove kolo</p>
 		</div>
 		}
 }
@@ -180,7 +194,7 @@ renderProposalCandidates() {
 					<br></br>
 					<h3>Kandidujuci kandidati</h3>
 					{this.renderCandidates()}
-					<h3>Kandidati z navrhoveho kola</h3>
+					<h3>Kandidati z navrhoveho kola (nie su automaticky zapisani do volieb)</h3>
 					{this.renderProposalCandidates()}
 
 			</Layout>
