@@ -3,7 +3,7 @@ import Layout from '../../../components/Layout'
 import Election from '../../../ethereum/election'
 import web3 from '../../../ethereum/web3'
 import {Router} from '../../../routes'
-import {Form, Button, Message, Input, TextArea, Checkbox} from 'semantic-ui-react'
+import {Form, Button, Message, Input, TextArea} from 'semantic-ui-react'
 import axios from 'axios';
 const {constants} = require('../../../helper/constants').default;
 
@@ -42,7 +42,8 @@ class CandidateNew extends Component{
 		return {
 			address:address, 
 			ethCandidates:candidatesEthereum, 
-			proposalCandidates: proposalJson 
+			proposalCandidates: proposalJson,
+			isProposal: isProposal 
 		};
 	}
 
@@ -138,7 +139,7 @@ class CandidateNew extends Component{
 }
 
 renderProposalCandidates() {
-	if(this.props.proposalJson != undefined){
+	if(this.props.isProposal){
 		return  <table class="ui celled table">
 			<thead>
 			<tr>

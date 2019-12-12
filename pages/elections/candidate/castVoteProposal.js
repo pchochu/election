@@ -26,7 +26,7 @@ class CastVoteProposal extends Component{
 		const element = document.createElement("a");
 		const file = new Blob([this.state.key], {type: 'text/plain'});
 		element.href = URL.createObjectURL(file);
-		element.download = this.state.login + " privateKeyForVote.txt";
+		element.download = this.state.login + " privateKeyForProposalVote.txt";
 		document.body.appendChild(element); // Required for this to work in FireFox
 		element.click();
 	}

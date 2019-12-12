@@ -547,5 +547,6 @@ module.exports =
 	updatePendingVotesToStoredProposal,
 	setProposalAsFinished,
 	getVotesProposal,
-	setFinishedUploadedProposal
+	setFinishedUploadedProposal,
+	decryptVoteProposal
 }
