@@ -12,6 +12,7 @@ class ElectionIndex extends Component {
 
 	static async getInitialProps() {
 
+
 		const elections = await factory.methods.getDeployedElections().call();
 		const electionInfo = await Promise.all(elections.map(async (address) => {
 			const election = Election(address)

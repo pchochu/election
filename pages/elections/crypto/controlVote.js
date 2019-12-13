@@ -75,7 +75,6 @@ class ControlVote extends Component {
                             selection
                             value={this.state.value}
                             options={this.props.electionSelect}
-                            //value={this.props.electionSelect['address']}
                             onChange={(e, { value }) => this.setState({ value })}
                         />   
                         <Message style={{ marginTop: '0.8rem' }} error header="Ojoj, niečo sa pokazilo!" content={this.state.errorMessage} />

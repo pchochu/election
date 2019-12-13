@@ -1,11 +1,13 @@
 const connection = require('./connection')
-
+var mysql = require('mysql');
 
 const getCandidate = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT * FROM candidate WHERE election_address = 
-		'`+props.address+`';`
+		var sql = "SELECT * FROM candidate WHERE election_address = ?";
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
+
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -17,21 +19,10 @@ const getCandidate = async(props) => {
 const getDescriptionOfElection = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT description FROM election WHERE election_address = 
-		'`+props.address+`';`
-		const res = await pool.query(sql)
-		await pool.end()
-		return res.rows;
-	} catch (error){
-		console.log('db error', error)
-		}
-}
+		var sql = "SELECT description FROM election WHERE election_address = ?";
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
 
-const getQN = async(props) => {
-	const pool = connection.getPool();
-	try{
-		var sql = `SELECT g,n FROM election WHERE election_address = 
-		'`+props.address+`';`
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -43,8 +34,10 @@ const getQN = async(props) => {
 const getNonVotes = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT id_candidate FROM vote WHERE id_election = 
-		'`+props.address+`' AND stored_on_eth = '0';`
+		var sql = "SELECT id_candidate FROM vote WHERE id_election = ? AND stored_on_eth = '0';";
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
+
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -56,8 +49,10 @@ const getNonVotes = async(props) => {
 const getNonVotesProposal = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT id_candidate FROM voteProposal WHERE id_election = 
-		'`+props.address+`' AND stored_on_eth = '0';`
+		var sql = "SELECT id_candidate FROM voteProposal WHERE id_election = ? AND stored_on_eth = '0';";
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
+
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -69,8 +64,10 @@ const getNonVotesProposal = async(props) => {
 const getVotes = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT id_candidate FROM vote WHERE id_election = 
-		'`+props.address+`';`
+		var sql = "SELECT id_candidate FROM vote WHERE id_election = ?;";
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
+
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -82,8 +79,9 @@ const getVotes = async(props) => {
 const getVotesProposal = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT id_candidate FROM voteProposal WHERE id_election = 
-		'`+props.address+`';`
+		var sql = "SELECT id_candidate FROM voteProposal WHERE id_election = ?;";
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -95,8 +93,10 @@ const getVotesProposal = async(props) => {
 const getVotesResults = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT * FROM vote WHERE id_election = 
-		'`+props.address+`';`
+		var sql = "SELECT * FROM vote WHERE id_election = ?;";
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
+
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -108,8 +108,10 @@ const getVotesResults = async(props) => {
 const getIsCreated = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT is_created FROM election WHERE election_address= 
-		'`+props.address+`';`
+		var sql = "SELECT is_created FROM election WHERE election_address= ?;";
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
+
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -121,8 +123,10 @@ const getIsCreated = async(props) => {
 const getNumOfVotes = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT COUNT(*) FROM vote WHERE id_election = 
-		'`+props.address+`' AND stored_on_eth = '`+props.type+`';`
+		var sql = "SELECT COUNT(*) FROM vote WHERE id_election = ? AND stored_on_eth = ?;";
+		var inserts = [props.address,props.type];
+		sql = mysql.format(sql, inserts);
+
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -134,8 +138,10 @@ const getNumOfVotes = async(props) => {
 const updateNonVotesToPending = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `UPDATE vote SET stored_on_eth = 'pending' WHERE id_election = 
-		'`+props.address+`' AND stored_on_eth = '0';`
+		var sql = "UPDATE vote SET stored_on_eth = 'pending' WHERE id_election = ? AND stored_on_eth = '0;";
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
+
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -147,7 +153,9 @@ const updateNonVotesToPendingProposal = async(props) => {
 	const pool = connection.getPool();
 	try{
 		var sql = `UPDATE voteProposal SET stored_on_eth = 'pending' WHERE id_election = 
-		'`+props.address+`' AND stored_on_eth = '0';`
+		? AND stored_on_eth = '0';`
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -158,9 +166,11 @@ const updateNonVotesToPendingProposal = async(props) => {
 const updatePendingVotesToStored = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `UPDATE vote SET stored_on_eth = '1', merkle_root= '`+props.root+`' 
-		WHERE id_election = '`+props.address+`'
+		var sql = `UPDATE vote SET stored_on_eth = '1', merkle_root= ?
+		WHERE id_election = ?
 		 AND stored_on_eth = 'pending';`
+		 var inserts = [props.root,props.address];
+		 sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -171,9 +181,12 @@ const updatePendingVotesToStored = async(props) => {
 const updatePendingVotesToStoredProposal = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `UPDATE voteProposal SET stored_on_eth = '1', merkle_root= '`+props.root+`' 
-		WHERE id_election = '`+props.address+`'
+		
+		var sql = `UPDATE voteProposal SET stored_on_eth = '1', merkle_root= ? 
+		WHERE id_election = ?
 		 AND stored_on_eth = 'pending';`
+		 var inserts = [props.root,props.address];
+		 sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -184,8 +197,9 @@ const updatePendingVotesToStoredProposal = async(props) => {
 const decryptVote = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `UPDATE vote SET id_decrypted_candidate = '`+props.id_candidate_decrypted +`' WHERE id_candidate = 
-		'`+props.id_candidate_encrypted+`';`
+		var sql = `UPDATE vote SET id_decrypted_candidate = ? WHERE id_candidate = ?;`
+		var inserts = [props.id_candidate_decrypted,props.id_candidate_encrypted];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -196,8 +210,9 @@ const decryptVote = async(props) => {
 const decryptVoteProposal = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `UPDATE voteProposal SET id_decrypted_candidate = '`+props.id_candidate_decrypted +`' WHERE id_candidate = 
-		'`+props.id_candidate_encrypted+`';`
+		var sql = `UPDATE voteProposal SET id_decrypted_candidate = ? WHERE id_candidate = ?;`
+		var inserts = [props.id_candidate_decrypted,props.id_candidate_encrypted];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -205,26 +220,13 @@ const decryptVoteProposal = async(props) => {
 		}
 }
 
-const addPubKey = async(props) => {
-	const pool = connection.getPool();
-	try{
-		updateKeys = `UPDATE election SET g ='`+props.g+`', n= '`+props.n+`'
-				WHERE election_address =
-	   			'`+props.address+`'`
-		await pool.query(updateKeys)
-
-		await pool.end()
-	} catch (error){
-		console.log('db error', error)
-	}
-}
-
 const addRSAPubKey = async(props) => {
 	const pool = connection.getPool();
 	try{
-		updateKeys = `UPDATE election SET rsa_pub_key ='`+props.RSAPubKey+`' WHERE election_address =
-	   			'`+props.address+`'`
-		await pool.query(updateKeys)
+		var sql = `UPDATE election SET rsa_pub_key = ? WHERE election_address =?`
+		var inserts = [props.RSAPubKey,props.address];
+		sql = mysql.format(sql, inserts);
+		await pool.query(sql)
 
 		await pool.end()
 	} catch (error){
@@ -236,8 +238,9 @@ const setElectionAsCreatedWithKeys = async(props) => {
 	const pool = connection.getPool();
 	try{
 		sql = `UPDATE election SET is_created = 'created_with_keys'
-				WHERE election_address =
-	   			'`+props.address+`'`
+				WHERE election_address = ?`
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -249,8 +252,9 @@ const setProposalAsCreatedWithKeys = async(props) => {
 	const pool = connection.getPool();
 	try{
 		sql = `UPDATE election SET is_created = 'created_proposal_with_keys'
-				WHERE election_address =
-	   			'`+props.address+`'`
+				WHERE election_address = ?`
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -262,8 +266,9 @@ const setElectionAsFinished= async(props) => {
 	const pool = connection.getPool();
 	try{
 		sql = `UPDATE election SET is_created = 'finished_no_uploaded'
-				WHERE election_address =
-	   			'`+props.address+`'`
+				WHERE election_address = ?`
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -275,8 +280,10 @@ const setProposalAsFinished= async(props) => {
 	const pool = connection.getPool();
 	try{
 		sql = `UPDATE election SET is_created = 'finished_proposal_no_uploaded'
-				WHERE election_address =
-	   			'`+props.address+`'`
+				WHERE election_address = ?`
+
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -288,8 +295,10 @@ const setFinishedUploadedProposal= async(props) => {
 	const pool = connection.getPool();
 	try{
 		sql = `UPDATE election SET is_created = 'created_with_keys'
-				WHERE election_address =
-	   			'`+props.address+`'`
+				WHERE election_address = ?`
+
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -301,8 +310,10 @@ const setFinishedUploadedProposal= async(props) => {
 const getUserIsListedInElection = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT * FROM voter WHERE id_election = 
-		'`+props.address+`' AND id_voter = '`+props.id_voter+`' ;`
+		var sql = `SELECT * FROM voter WHERE id_election = ? AND id_voter = ?;`
+
+		var inserts = [props.address, props.id_voter];
+		sql = mysql.format(sql, inserts);
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -314,8 +325,10 @@ const getUserIsListedInElection = async(props) => {
 const didUserVote = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT * FROM voter WHERE id_election = 
-		'`+props.address+`' AND id_voter = '`+props.id_voter+`' ;`
+		var sql = `SELECT * FROM voter WHERE id_election = ? AND id_voter = ? ;`
+
+		var inserts = [props.address, props.id_voter];
+		sql = mysql.format(sql, inserts);		
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -327,8 +340,10 @@ const didUserVote = async(props) => {
 const didUserVoteProposal = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT * FROM voterProposal WHERE id_election = 
-		'`+props.address+`' AND id_voter = '`+props.id_voter+`' ;`
+		var sql = `SELECT * FROM voterProposal WHERE id_election = ? AND id_voter = ? ;`
+
+		var inserts = [props.address, props.id_voter];
+		sql = mysql.format(sql, inserts);
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -340,8 +355,10 @@ const didUserVoteProposal = async(props) => {
 const getAllUserVote = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT id_candidate FROM vote WHERE id_election = 
-		'`+props.address+`';`
+		var sql = `SELECT id_candidate FROM vote WHERE id_election = ?;`
+
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -353,8 +370,10 @@ const getAllUserVote = async(props) => {
 const getUserVoteCanId = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT id_candidate FROM vote WHERE id_election = 
-		'`+props.address+`' AND id_voter = '`+props.id_voter+`' ;`
+		var sql = `SELECT id_candidate FROM vote WHERE id_election = ? AND id_voter = ? ;`
+
+		var inserts = [props.address, props.id_voter];
+		sql = mysql.format(sql, inserts);
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -366,8 +385,10 @@ const getUserVoteCanId = async(props) => {
 const votedInElection = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT * FROM voter WHERE id_election = 
-		'`+props.address+`' AND id_voter = '`+props.id_voter+`' ;`
+		var sql = `SELECT * FROM voter WHERE id_election = ? AND id_voter = ? ;`
+
+		var inserts = [props.address, props.id_voter];
+		sql = mysql.format(sql, inserts);
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -381,8 +402,10 @@ const getCandidateById = async(props) => {
 	console.log(props.address)
 	console.log(props.id)
 	try{
-		var sql = `SELECT first_name, last_name FROM candidate WHERE election_address = 
-		'`+props.address+`' AND candidate_contract_id = '`+props.id+`';`
+		var sql = `SELECT first_name, last_name FROM candidate WHERE election_address = ? AND candidate_contract_id = ?;`
+
+		var inserts = [props.address, props.id];
+		sql = mysql.format(sql, inserts);
 		const res = await pool.query(sql)
 		console.log(res)
 		await pool.end()
@@ -395,8 +418,10 @@ const getCandidateById = async(props) => {
 const getMerkleRoot = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = `SELECT merkle_root FROM vote WHERE id_election = 
-		'`+props.address+`' AND id_voter = '`+props.id_voter+`' ;`
+		var sql = `SELECT merkle_root FROM vote WHERE id_election = ? AND id_voter = ? ;`
+
+		var inserts = [props.address, props.id_voter];
+		sql = mysql.format(sql, inserts);
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;
@@ -408,11 +433,11 @@ const getMerkleRoot = async(props) => {
 const newElection = async(props) => {
 	const pool = connection.getPool();
 	try{
-		sql = `INSERT INTO election (name, description, election_address, is_created) VALUES (
-			'`+props.nameOfTheElection+`',
-			'`+props.descriptionOfElection+`',
-			'`+props.address+`',
-			'created_no_keys')`
+
+		var sql = `INSERT INTO election (name, description, election_address, is_created) VALUES (?,?,?,'created_no_keys');`
+		var inserts = [props.nameOfTheElection, props.descriptionOfElection, props.address];
+		sql = mysql.format(sql, inserts);
+
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -424,11 +449,10 @@ const newElection = async(props) => {
 const newVote = async(props) => {
 	const pool = connection.getPool();
 	try{
-		sql = `INSERT INTO vote (id_election, id_candidate, id_voter, stored_on_eth, merkle_root) VALUES (
-			'`+props.address_election+`',
-			'`+props.candidate_id+`',
-			'`+props.voter_id+`',
-			'0', '0')`
+		sql = `INSERT INTO vote (id_election, id_candidate, id_voter, stored_on_eth, merkle_root) VALUES (?,?,?,'0', '0')`
+
+		var inserts = [props.address_election, props.candidate_id, props.voter_id];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -439,11 +463,9 @@ const newVote = async(props) => {
 const newVoteProposal = async(props) => {
 	const pool = connection.getPool();
 	try{
-		sql = `INSERT INTO voteProposal (id_election, id_candidate, id_voter, stored_on_eth, merkle_root) VALUES (
-			'`+props.address_election+`',
-			'`+props.candidate_id+`',
-			'`+props.voter_id+`',
-			'0', '0')`
+		sql = `INSERT INTO voteProposal (id_election, id_candidate, id_voter, stored_on_eth, merkle_root) VALUES (?,?,?,'0', '0')`
+		var inserts = [props.address_election, props.candidate_id, props.voter_id];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -454,9 +476,9 @@ const newVoteProposal = async(props) => {
 const newVoteLDAP = async(props) => {
 	const pool = connection.getPool();
 	try{
-		sql = `INSERT INTO voter (id_election, id_voter) VALUES (
-			'`+props.address_election+`',
-			'`+props.voter_id+`')`
+		sql = `INSERT INTO voter (id_election, id_voter) VALUES (?,?)`
+		var inserts = [props.address_election, props.voter_id];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -467,9 +489,9 @@ const newVoteLDAP = async(props) => {
 const newVoteLDAPProposal = async(props) => {
 	const pool = connection.getPool();
 	try{
-		sql = `INSERT INTO voterProposal (id_election, id_voter) VALUES (
-			'`+props.address_election+`',
-			'`+props.voter_id+`')`
+		sql = `INSERT INTO voterProposal (id_election, id_voter) VALUES (?,?)`
+		var inserts = [props.address_election, props.voter_id];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -480,9 +502,9 @@ const newVoteLDAPProposal = async(props) => {
 const newVoter = async(props) => {
 	const pool = connection.getPool();
 	try{
-		sql = `INSERT INTO voter (id_election, id_voter) VALUES (
-			'`+props.address_election+`',
-			'`+props.voter_id+`')`
+		sql = `INSERT INTO voter (id_election, id_voter) VALUES (?,?)`
+		var inserts = [props.address_election, props.voter_id];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){
@@ -496,13 +518,9 @@ const newCandidate = async(props) => {
 		console.log('DB')
 		console.log(props.candidate_election_id)
 		sql = `INSERT INTO candidate (first_name, last_name, description, elected, election_address, number_of_votes_hash, candidate_contract_id) VALUES (
-			'`+props.first_name+`',
-			'`+props.last_name+`',
-			'`+props.description+`',
-			'0',
-			'`+props.address+`',
-			'`+props.hashed_number+`',
-			`+props.candidate_election_id+`)`
+			?,?,?,'0',?,?,?)`
+		var inserts = [props.first_name, props.last_name, props.description, props.address, props.hashed_number, props.candidate_election_id];
+		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
 	} catch (error){

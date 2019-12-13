@@ -7,13 +7,14 @@ const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handler = routes.getRequestHandler(app);
 const queries = require('./db/queries');
+const jwt = require('jsonwebtoken');
+const Web3 = require('web3')
 
 const NodeRSA = require('node-rsa');
 let multer = require('multer');
 let upload = multer();
 const { MerkleTree } = require('merkletreejs')
 const SHA256 = require('crypto-js/sha256')
-const paillier = require("paillier-bignum/src/paillier")
 const { convertCSVToArray } = require('convert-csv-to-array');
 var ldap = require('ldapjs');
 
@@ -87,21 +88,6 @@ app.prepare().then(() => {
       return res.send(200)
     }catch (error) {
       console.log('Error upload voters', error);
-      return res.sendStatus(500);
-    }
-  })
-  
-  httpApp.put('/savePublicKey', async(req, res) => {
-    try {
-      const response = await queries.addPubKey(
-        {
-          address: req.body.address,
-          g: req.body.g,
-          n: req.body.n
-        });
-      return res.send(response)
-    } catch (error) {
-      console.log('Error addPubKey', error);
       return res.sendStatus(500);
     }
   })
