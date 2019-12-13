@@ -41,16 +41,6 @@ class GenerateKeys extends Component{
       }
 
       createRSAKeys = async () => {
-        axios.interceptors.request.use(function (config) {
-            const CancelToken = axios.CancelToken;
-            const source = CancelToken.source();
-            console.log(source.token)
-            return config;
-          }, function (error) {
-            // Do something with request error
-            return Promise.reject(error);
-          });
-
         // returns [publicRSAPemKey, privateRSAPemKey]
             try{
                 const response = await axios.get(constants.ADDRESS + '/newRSAKeys');

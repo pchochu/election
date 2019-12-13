@@ -16,6 +16,21 @@ const getCandidate = async(props) => {
 		}
 }
 
+const getIsAdminUser = async(props) => {
+	const pool = connection.getPool();
+	try{
+		var sql = "SELECT isAdmin FROM eligibleVoter WHERE id_election = ? AND id_voter = ?";
+		var inserts = [props.address, props.id_voter];
+		sql = mysql.format(sql, inserts);
+
+		const res = await pool.query(sql)
+		await pool.end()
+		return res.rows;
+	} catch (error){
+		console.log('db error', error)
+		}
+}
+
 const getDescriptionOfElection = async(props) => {
 	const pool = connection.getPool();
 	try{
@@ -502,8 +517,8 @@ const newVoteLDAPProposal = async(props) => {
 const newVoter = async(props) => {
 	const pool = connection.getPool();
 	try{
-		sql = `INSERT INTO voter (id_election, id_voter) VALUES (?,?)`
-		var inserts = [props.address_election, props.voter_id];
+		sql = `INSERT INTO eligibleVoter (id_election, id_voter, isAdmin) VALUES (?,?,?)`
+		var inserts = [props.address_election, props.voter_id, props.isAdmin];
 		sql = mysql.format(sql, inserts);
 		await pool.query(sql)
 		await pool.end()
@@ -540,7 +555,6 @@ module.exports =
 	newElection, 
 	newCandidate, 
 	getDescriptionOfElection, 
-	addPubKey,
 	getIsCreated,
 	getNumOfVotes,
 	getMerkleRoot,
@@ -566,5 +580,6 @@ module.exports =
 	setProposalAsFinished,
 	getVotesProposal,
 	setFinishedUploadedProposal,
-	decryptVoteProposal
+	decryptVoteProposal,
+	getIsAdminUser
 }

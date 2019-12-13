@@ -4,6 +4,7 @@ DROP TABLE vote;
 DROP TABLE voter;
 DROP TABLE voteProposal;
 DROP TABLE voterProposal;
+DROP TABLE eligibleVoter;
 
 CREATE TABLE candidate (
 			ID  SERIAL PRIMARY KEY,
@@ -56,4 +57,11 @@ CREATE TABLE voterProposal(
                 ID  SERIAL PRIMARY KEY,
                 id_election text NOT NULL,
                 id_voter text NOT NULL
+);
+
+CREATE TABLE eligibleVoter(
+				ID  SERIAL PRIMARY KEY,
+                id_election text NOT NULL,
+                id_voter text NOT NULL,
+				isAdmin text NOT NULL
 );

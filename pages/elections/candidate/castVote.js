@@ -3,6 +3,7 @@ import Layout from '../../../components/Layout'
 import Election from '../../../ethereum/election'
 import {Form, Button, Message, Input, Accordion, Label} from 'semantic-ui-react'
 import axios from 'axios';
+const jwt = require('jsonwebtoken')
 const {constants} = require('../../../helper/constants').default;
 
 class CandidateNew extends Component{
@@ -12,6 +13,7 @@ class CandidateNew extends Component{
 		key: '',
 		password: ''
 	};
+
 
 	static async getInitialProps(props){
 		const {address, id} = props.query;
@@ -58,12 +60,14 @@ class CandidateNew extends Component{
 
 		try{
 
-			/* let isAuth = await axios.post(constants.ADDRESS + '/authenticate',
+			let isAuth = await axios.post(constants.ADDRESS + '/authenticate',
 			{ 
 					username:this.state.login,
-					password: this.state.password
+					password: this.state.password,
+					address:this.props.address
 			})
 
+			/*
 			if(isAuth.data.response == 'notAuth'){
 				this.setState({errorMessage: 'Nespavne prihlasovacie udaje'})
 				return
@@ -101,19 +105,23 @@ class CandidateNew extends Component{
 			const election = await Election(this.props.address)
 			const rsa_pub_key = await election.methods.RSA_pub_key().call()
 
-			const response = await axios.put(constants.ADDRESS +  '/newVote', 
+			const response = await axios.post(constants.ADDRESS +  '/newVote', 
 			{
+				headers: {
+					'Content-Type': 'application/json',
+					'token': isAuth.data
+				},
 				address: this.props.address,
 				id_candidate: this.props.id,
 				id_voter: this.state.login,
 				rsa_pub_key: rsa_pub_key
 			})
 
-			// const responseLDAP = await axios.put(constants.ADDRESS +  '/newVoteLDAP', 
-			// {
-			// 	address: this.props.address,
-			// 	id_voter: this.state.login
-			// })
+			const responseLDAP = await axios.put(constants.ADDRESS +  '/newVoteLDAP', 
+			{
+				address: this.props.address,
+				id_voter: this.state.login
+			})
 
 
 			this.setState({ key: response.data})
@@ -121,15 +129,6 @@ class CandidateNew extends Component{
 			this.downloadTxtFile()
 			alert('Vyborne, zahlasoval si a stiahol sa ti privatny kluc')
 
-/* 			axios.put(constants.ADDRESS + '/addVotesToCandidates', 
-			{
-			address: this.props.address,
-			id_candidate: this.props.id,
-			eth_candidates: this.props.ethCandidates
-			},
-			).catch(function (error) {
-			console.log(error);
-          });	 */
       }catch (e){
 	  }
 

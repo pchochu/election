@@ -52,12 +52,13 @@ class CastVoteProposal extends Component{
 
 		try{
 
-			/* let isAuth = await axios.post(constants.ADDRESS + '/authenticate',
+			 let isAuth = await axios.post(constants.ADDRESS + '/authenticate',
 			{ 
 					username:this.state.login,
-					password: this.state.password
+					password: this.state.password,
+					address:this.props.address
 			})
-
+			/*
 			if(isAuth.data.response == 'notAuth'){
 				this.setState({errorMessage: 'Nespavne prihlasovacie udaje'})
 				return
@@ -95,8 +96,12 @@ class CastVoteProposal extends Component{
 			const election = await Election(this.props.address)
 			const rsa_pub_key = await election.methods.RSA_pub_key().call()
 
-			const response = await axios.put(constants.ADDRESS +  '/newVoteProposal', 
+			const response = await axios.post(constants.ADDRESS +  '/newVoteProposal', 
 			{
+				headers: {
+					'Content-Type': 'application/json',
+					'token': isAuth.data
+				},
 				address: this.props.address,
 				id_candidate: this.state.xlogin,
 				id_voter: this.state.login,

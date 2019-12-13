@@ -8,7 +8,7 @@ const app = next({ dev });
 const handler = routes.getRequestHandler(app);
 const queries = require('./db/queries');
 const jwt = require('jsonwebtoken');
-const Web3 = require('web3')
+const verify = require('./verifyToken')
 
 const NodeRSA = require('node-rsa');
 let multer = require('multer');
@@ -26,28 +26,37 @@ app.prepare().then(() => {
   
   httpApp.post('/authenticate', async(req, res) => {
    try{
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+    // process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-    var client = ldap.createClient({
-      url: 'ldaps://chancer.mendelu.cz:636',
-      reconnect: true
-    });
+    // var client = ldap.createClient({
+    //   url: 'ldaps://chancer.mendelu.cz:636',
+    //   reconnect: true
+    // });
 
-    let isAuthenticated = await client.bind("uid=" +req.body.username+ ", ou=People, dc=mendelu, dc=cz", req.body.password, (err, res2) => {
-      if (err) {
-        console.log('nepodaril sa')
-        abc = 'notAuth'
-        client.unbind();
-        res.send({response: 'notAuth'})
-      } else{
-        console.log('podarilo sa')
-        abc = 'Auth'
-        client.unbind();
-        res.send({response: 'Auth'})
-        }
-      }
-      ); 
-      client.unbind();
+    // let isAuthenticated = await client.bind("uid=" +req.body.username+ ", ou=People, dc=mendelu, dc=cz", req.body.password, (err, res2) => {
+    //   if (err) {
+    //     abc = 'notAuth'
+    //     client.unbind();
+    //     res.send({response: 'notAuth'})
+    //   } else{
+    //     abc = 'Auth'
+    //     client.unbind();
+    //     res.send({response: 'Auth'})
+    //     }
+    //   }
+    //   ); 
+
+      const response = await queries.getIsAdminUser(
+        {
+          address: req.body.address,
+          id_voter: req.body.username,
+        });
+
+      const token = jwt.sign({_id:req.body.username}, 'isVoter', { expiresIn: 5 })
+      res.header('auth-token', token).send(token);
+
+
+      // client.unbind();
     } catch (error) {
       console.log('Err authenticate', error);
       return res.sendStatus(500);
@@ -60,10 +69,14 @@ app.prepare().then(() => {
     const array = convertCSVToArray(csv, {header:true, type:"object", separator:";"});
     try{
       await Promise.all(array[0].map(async (voter) => {
+        var admin = '0'
+        voter.includes(':admin') ? admin = '1': admin = '0'
+        voter = voter.replace(':admin', '')
         await queries.newVoter(
           {
             address_election:req.query.address,
-            voter_id: voter
+            voter_id: voter,
+            isAdmin:admin
           })
       }))
       return res.send(200)
@@ -485,7 +498,7 @@ app.prepare().then(() => {
     }
   })
   
-  httpApp.put('/newVote', async(req, res) => {
+  httpApp.post('/newVote',verify, async(req, res) => {
     const rsa_pub_key_election = req.body.rsa_pub_key  
     const keyCandidate = new NodeRSA({b: 512});
     const keyVoter = new NodeRSA({b: 512});
@@ -511,7 +524,7 @@ app.prepare().then(() => {
     }
   })
 
-  httpApp.put('/newVoteProposal', async(req, res) => {
+  httpApp.post('/newVoteProposal', async(req, res) => {
 
     console.log(req.body.rsa_pub_key)
     console.log(req.body.id_candidate)
