@@ -120,6 +120,10 @@ class CandidateNew extends Component{
 
 			const responseLDAP = await axios.put(constants.ADDRESS +  '/newVoteLDAP', 
 			{
+				headers: {
+					'Content-Type': 'application/json',
+					'token': isAuth.data
+				},
 				address: this.props.address,
 				id_voter: this.state.login
 			})

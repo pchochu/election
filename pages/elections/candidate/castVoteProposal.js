@@ -111,6 +111,10 @@ class CastVoteProposal extends Component{
 
 			const responseLDAP = await axios.put(constants.ADDRESS +  '/newVoteLDAPProposal', 
 			{
+				headers: {
+					'Content-Type': 'application/json',
+					'token': isAuth.data
+				},
 				address: this.props.address,
 				id_voter: this.state.login
 			})

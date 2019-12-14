@@ -11,15 +11,13 @@ class Login extends Component{
 	state = {
 		login: '',
 		errorMessage: '',
-		password: ''
+		password: '',
 	};
 
 
-	static async getInitialProps(props){
-		const {type} = props.query;
+	async componentWillMount(){
 		const jwt = getJwtAdministration()
-
-		if(type == 1 && jwt){
+		if(this.props.type == 1 && jwt){
 			await axios.post(constants.ADDRESS +  '/authenticateAdmin', 
 			{
 				headers: {
@@ -30,8 +28,8 @@ class Login extends Component{
 				Router.pushRoute(`/elections/administration/authenticationElection/`);
 			}).catch(error => {
 				console.log("Neulozeny token")
-			})} else if(type == 2 && jwt){
-				await axios.post(constants.ADDRESS +  '/authenticatFactory', 
+			})} else if(this.props.type == 2 && jwt){
+				await axios.post(constants.ADDRESS +  '/authenticateFactory', 
 				{
 					headers: {
 						'Content-Type': 'application/json',
@@ -43,7 +41,11 @@ class Login extends Component{
 					console.log("Neulozeny token")
 				})
 		}
+	}
+
+	static async getInitialProps(props){
 		
+		const {type} = props.query;
 		return {
 			type:type
 		};

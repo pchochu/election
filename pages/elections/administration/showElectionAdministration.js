@@ -71,7 +71,8 @@ class Administration extends Component{
                 address: address, 
                 numOfVotesNotStoredOnEth: numOfVotesNotStoredOnEth.data[0]['count'],
                 numOfVotesStoredOnEth: numOfVotesStoredOnEth.data[0]['count'],
-                numOfVotesTotal: parseInt(numOfVotesNotStoredOnEth.data[0]['count']) + parseInt(numOfVotesStoredOnEth.data[0]['count'])
+                numOfVotesTotal: parseInt(numOfVotesNotStoredOnEth.data[0]['count']) + parseInt(numOfVotesStoredOnEth.data[0]['count']),
+                jwt: jwt 
             }
         }))
 
@@ -116,6 +117,7 @@ class Administration extends Component{
                             votesOnEth = {address['numOfVotesStoredOnEth']}
                             votesNotOnEth = {address['numOfVotesNotStoredOnEth']}
                             votesTotal = {address['numOfVotesTotal']}
+                            jtw = {this.props.jwt}
                             />;
                 } else if(address != undefined && address['isCreated'] == 'created_proposal_with_keys'){
                     return <CardAdminProposal
@@ -123,6 +125,7 @@ class Administration extends Component{
                             id={index}
                             electionInfoEth={this.props.electionInfo[index]}
                             address={address}
+                            jtw = {this.props.jwt}
                             />;
                 }
             })

@@ -96,7 +96,7 @@ app.prepare().then(() => {
     }
   })
 
-  httpApp.post('/upload', [upload.any(), verifyFactory], async(req, res) => {
+  httpApp.post('/upload', upload.any(), async(req, res) => {
     let files = req.files;
     let csv = files[0]['buffer'].toString('ASCII')
     const array = convertCSVToArray(csv, {header:true, type:"object", separator:";"});
@@ -104,7 +104,9 @@ app.prepare().then(() => {
       await Promise.all(array[0].map(async (voter) => {
         var admin = '0'
         voter.includes(':admin') ? admin = '1': admin = '0'
+        voter.includes(':factory') ? admin = '2': admin = '0'
         voter = voter.replace(':admin', '')
+        voter = voter.replace(':factory', '')
         await queries.newVoter(
           {
             address_election:req.query.address,
@@ -177,7 +179,7 @@ app.prepare().then(() => {
     }
   })
   
-  httpApp.put('/setElectionAsFinished', async(req, res) => {
+  httpApp.put('/setElectionAsFinished', verifyAdmin, async(req, res) => {
     try {
       const response = await queries.setElectionAsFinished(
         {
@@ -190,7 +192,7 @@ app.prepare().then(() => {
     }
   })
 
-  httpApp.put('/setProposalAsFinished', async(req, res) => {
+  httpApp.put('/setProposalAsFinished', verifyAdmin, async(req, res) => {
     try {
       const response = await queries.setProposalAsFinished(
         {
@@ -309,9 +311,8 @@ app.prepare().then(() => {
     }
   })
   
-  httpApp.put('/setFinishedUploadedProposal', async(req, res) => {
+  httpApp.put('/setFinishedUploadedProposal', verifyFactory, async(req, res) => {
     try {
-        console.log(req.body.election_address)
         resp = await queries.setFinishedUploadedProposal({address:req.body.election_address});
         return res.send(resp)
     } catch (error) {
@@ -557,12 +558,8 @@ app.prepare().then(() => {
     }
   })
 
-  httpApp.post('/newVoteProposal', async(req, res) => {
+  httpApp.post('/newVoteProposal', verifyVoter, async(req, res) => {
 
-    console.log(req.body.rsa_pub_key)
-    console.log(req.body.id_candidate)
-    console.log(req.body.id_voter)
-    console.log(req.body.address)
     try {
     const rsa_pub_key_election = req.body.rsa_pub_key  
     const keyCandidate = new NodeRSA({b: 512});
@@ -589,7 +586,7 @@ app.prepare().then(() => {
     }
   })
 
-  httpApp.put('/newVoteLDAP', async(req, res) => {
+  httpApp.put('/newVoteLDAP', verifyVoter, async(req, res) => {
     try {
       const response = await queries.newVoteLDAP(
         {
@@ -604,7 +601,7 @@ app.prepare().then(() => {
   })
 
   
-  httpApp.put('/newVoteLDAPProposal', async(req, res) => {
+  httpApp.put('/newVoteLDAPProposal', verifyVoter, async(req, res) => {
     try {
       const response = await queries.newVoteLDAPProposal(
         {
@@ -661,7 +658,7 @@ app.prepare().then(() => {
     }
   })
   
-  httpApp.get('/createMerkleRoot', async(req, res) => {
+  httpApp.get('/createMerkleRoot', verifyAdmin, async(req, res) => {
     try {
       const address = req.query.address
       const votes = await queries.getNonVotes({
@@ -689,7 +686,7 @@ app.prepare().then(() => {
     }
   })
 
-  httpApp.get('/createMerkleRootProposal', async(req, res) => {
+  httpApp.get('/createMerkleRootProposal', verifyAdmin, async(req, res) => {
     try {
       const address = req.query.address
       const votes = await queries.getNonVotesProposal({
@@ -717,7 +714,7 @@ app.prepare().then(() => {
     }
   })
   
-  httpApp.put('/updatePendingVotesToStored', async(req, res) => {
+  httpApp.put('/updatePendingVotesToStored', verifyAdmin, async(req, res) => {
     try {
       const address = req.body.address
       const root = req.body.root
@@ -733,7 +730,7 @@ app.prepare().then(() => {
     }
   })
 
-  httpApp.put('/updatePendingVotesToStoredProposal', async(req, res) => {
+  httpApp.put('/updatePendingVotesToStoredProposal', verifyAdmin, async(req, res) => {
     try {
       const address = req.body.address
       const root = req.body.root

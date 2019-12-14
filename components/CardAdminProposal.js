@@ -20,6 +20,10 @@ class CardAdminProposal extends Component{
         let accounts
         try {
             let response = await axios.get( constants.ADDRESS + '/createMerkleRootProposal', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': this.props.jwt
+                },
                 params: {
                     address:this.props.address['address']
                 }
@@ -32,6 +36,10 @@ class CardAdminProposal extends Component{
                     })
 
                 await axios.put(constants.ADDRESS + '/updatePendingVotesToStoredProposal', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'token': this.props.jwt
+                    },
                     address: this.props.address['address'],
                     root: response.data['root']
                 })    
@@ -69,6 +77,10 @@ class CardAdminProposal extends Component{
     proposalFinished = async (event) => { 
         try{	
             axios.put(constants.ADDRESS + '/setProposalAsFinished', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': this.props.jwt
+                },
                 address: this.props.address['address'],
             });
         } catch (e) {

@@ -4,7 +4,6 @@ import { Form, Button, Input, Message, TextArea, Accordion, Label, Checkbox } fr
 import factory from '../../ethereum/factory';
 import Election from '../../ethereum/election'
 import web3 from '../../ethereum/web3';
-import { Router } from '../../routes';
 import axios from 'axios';
 const {constants} = require('../../helper/constants').default;
 import {getJwtAdministration} from '../../helper/jwtAdministration'
@@ -26,14 +25,14 @@ class ElectionNew extends React.Component {
 		address3: '',
 		selectedFile: null,
 		msg: '',
-		checked: false
+		checked: false,
+		token: ''
 	};
 
-	static async getInitialProps(){
+	async componentWillMount(){
 		const jwt = getJwtAdministration()
-		return {
-			jwt:jwt
-		};
+		this.setState({token:jwt})
+
 	}
 
 	downloadTxtFile = () => {
@@ -87,7 +86,7 @@ class ElectionNew extends React.Component {
 		{
 			headers: {
 				'Content-Type': 'application/json',
-				'token': this.props.jwt
+				'token': this.state.token
 			},
 			nameOfTheElection: this.state.nameOfTheElection,
 			descriptionOfElection: this.state.descriptionOfElection,
@@ -126,7 +125,7 @@ class ElectionNew extends React.Component {
 					axios.put(constants.ADDRESS + '/saveRSAPublicKey', {
 						headers: {
 							'Content-Type': 'application/json',
-							'token': this.props.jwt
+							'token': this.state.token
 						},
 						address: this.state.address,
 						RSAPubKey: this.state.RSAPubKey
@@ -165,7 +164,7 @@ class ElectionNew extends React.Component {
 				axios.put(constants.ADDRESS + '/setElectionAsCreatedWithKeys', {
 					headers: {
 						'Content-Type': 'application/json',
-						'token': this.props.jwt
+						'token': this.state.token
 					},
 					address: this.state.address,
 					proposal: isProposalRound
@@ -274,7 +273,6 @@ class ElectionNew extends React.Component {
 		const response = await axios.post(constants.ADDRESS + "/upload", data, {
 			headers: {
 				'Content-Type': 'multipart/form-data',
-				'token': this.props.jwt
 			},
 			params:{
 				address: this.state.address
