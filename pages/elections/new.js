@@ -7,6 +7,7 @@ import web3 from '../../ethereum/web3';
 import { Router } from '../../routes';
 import axios from 'axios';
 const {constants} = require('../../helper/constants').default;
+import {getJwtAdministration} from '../../helper/jwtAdministration'
 
 
 class ElectionNew extends React.Component {
@@ -27,6 +28,13 @@ class ElectionNew extends React.Component {
 		msg: '',
 		checked: false
 	};
+
+	static async getInitialProps(){
+		const jwt = getJwtAdministration()
+		return {
+			jwt:jwt
+		};
+	}
 
 	downloadTxtFile = () => {
 		const element = document.createElement("a");
@@ -77,6 +85,10 @@ class ElectionNew extends React.Component {
 
 		axios.put(constants.ADDRESS + '/newElection',
 		{
+			headers: {
+				'Content-Type': 'application/json',
+				'token': this.props.jwt
+			},
 			nameOfTheElection: this.state.nameOfTheElection,
 			descriptionOfElection: this.state.descriptionOfElection,
 			address: this.state.address,
@@ -112,6 +124,10 @@ class ElectionNew extends React.Component {
 					
 							  
 					axios.put(constants.ADDRESS + '/saveRSAPublicKey', {
+						headers: {
+							'Content-Type': 'application/json',
+							'token': this.props.jwt
+						},
 						address: this.state.address,
 						RSAPubKey: this.state.RSAPubKey
 					});
@@ -147,6 +163,10 @@ class ElectionNew extends React.Component {
 
 			if(rsaKeyEth != ''){
 				axios.put(constants.ADDRESS + '/setElectionAsCreatedWithKeys', {
+					headers: {
+						'Content-Type': 'application/json',
+						'token': this.props.jwt
+					},
 					address: this.state.address,
 					proposal: isProposalRound
 				});
@@ -253,7 +273,8 @@ class ElectionNew extends React.Component {
 		
 		const response = await axios.post(constants.ADDRESS + "/upload", data, {
 			headers: {
-				'Content-Type': 'multipart/form-data'
+				'Content-Type': 'multipart/form-data',
+				'token': this.props.jwt
 			},
 			params:{
 				address: this.state.address

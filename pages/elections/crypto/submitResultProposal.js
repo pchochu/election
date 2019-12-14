@@ -17,8 +17,9 @@ class SubmitResultsProposal extends Component{
 
 	static async getInitialProps(props){
 		const {address, account, req} = props.query;
+		const jwt = getJwtAdministration()
 		
-		return {address, account};
+		return {address, account, jwt};
 	}
 
 	uploadWinner = async event => {
@@ -47,7 +48,10 @@ class SubmitResultsProposal extends Component{
 			})
 			
 			await axios.put(constants.ADDRESS + '/setFinishedUploadedProposal',
-			{ 
+			{ 				headers: {
+				'Content-Type': 'application/json',
+				'token': this.props.jwt
+			},
                 	election_address:this.props.address,
 			});
 
@@ -74,6 +78,10 @@ class SubmitResultsProposal extends Component{
 		try{
         	getResults = await axios.get(constants.ADDRESS + '/getResultProposal',
 			{ 
+				headers: {
+					'Content-Type': 'application/json',
+					'token': this.props.jwt
+				},
 				params: {
                 	election_address:this.props.address,
                 	RSAkey:this.state.rsa,

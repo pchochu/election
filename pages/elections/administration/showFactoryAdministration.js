@@ -7,12 +7,25 @@ import CardFactoryProposal from '../../../components/CardFactoryProposal'
 import {Button, Icon } from "semantic-ui-react";
 import { Router } from '../../../routes';
 import axios from 'axios'
+import {getJwtAdministration} from '../../../helper/jwtAdministration'
 const {constants} = require('../../../helper/constants').default;
 
 
 class FactoryAdministration extends Component{
     
 	static async getInitialProps(props){
+
+        const jwt = getJwtAdministration()
+        if(!jwt){ Router.pushRoute(`/`)}
+        await axios.post(constants.ADDRESS +  '/authenticateFactory', 
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                'token': jwt
+            },
+        }).catch( error => {
+            Router.pushRoute(`/elections/administration/login/2`)
+        })
 
 		const elections = await factory.methods.getDeployedElections().call();
         const administratorAddress = props.query.adminAddress

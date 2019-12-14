@@ -4,6 +4,8 @@ import {Form, Button, Message, Input, Accordion, Label} from 'semantic-ui-react'
 import axios from 'axios';
 const jwt = require('jsonwebtoken')
 const {constants} = require('../../../helper/constants').default;
+import {Router} from '../../../routes';
+import {getJwtAdministration} from '../../../helper/jwtAdministration'
 
 class Login extends Component{
 	state = {
@@ -15,6 +17,32 @@ class Login extends Component{
 
 	static async getInitialProps(props){
 		const {type} = props.query;
+		const jwt = getJwtAdministration()
+
+		if(type == 1 && jwt){
+			await axios.post(constants.ADDRESS +  '/authenticateAdmin', 
+			{
+				headers: {
+					'Content-Type': 'application/json',
+					'token': jwt
+				},
+			}).then( e => {
+				Router.pushRoute(`/elections/administration/authenticationElection/`);
+			}).catch(error => {
+				console.log("Neulozeny token")
+			})} else if(type == 2 && jwt){
+				await axios.post(constants.ADDRESS +  '/authenticatFactory', 
+				{
+					headers: {
+						'Content-Type': 'application/json',
+						'token': jwt
+					},
+				}).then( e => {
+					Router.pushRoute(`/elections/administration/authentication/`);
+				}).catch(error => {
+					console.log("Neulozeny token")
+				})
+		}
 		
 		return {
 			type:type
@@ -51,6 +79,13 @@ class Login extends Component{
 				this.setState({errorMessage: 'Nespavne prihlasovacie udaje'})
 				return
 			} */
+			if(this.props.type == 1){
+				Router.pushRoute(`/elections/administration/authenticationElection/`)
+			} else if(this.props.type == 2){
+				Router.pushRoute(`/elections/administration/authentication`)
+			} else{
+				Router.pushRoute('/')
+			}
 
       }catch (e){
 	  }

@@ -2,9 +2,9 @@ import React, {Component} from 'react'
 import Layout from '../../../components/Layout'
 import Election from '../../../ethereum/election'
 import web3 from '../../../ethereum/web3'
-import {Router} from '../../../routes'
 import {Form, Button, Message, Input, TextArea} from 'semantic-ui-react'
 import axios from 'axios';
+import {getJwtAdministration} from '../../../helper/jwtAdministration'
 const {constants} = require('../../../helper/constants').default;
 
 class CandidateNew extends Component{
@@ -18,6 +18,7 @@ class CandidateNew extends Component{
 
 	static async getInitialProps(props){
 		const {address, req} = props.query;
+		const jwt = getJwtAdministration()
 		
 		const election = Election(address);
 		const candidateCount = await election.methods.getCandidateCount().call()
@@ -43,7 +44,8 @@ class CandidateNew extends Component{
 			address:address, 
 			ethCandidates:candidatesEthereum, 
 			proposalCandidates: proposalJson,
-			isProposal: isProposal 
+			isProposal: isProposal,
+			jwt:jwt
 		};
 	}
 
@@ -76,6 +78,10 @@ class CandidateNew extends Component{
 		const candidate_election_id = await election.methods.last_candidate_id().call()
 		axios.put(constants.ADDRESS + '/newCandidate', 
 		{
+			headers: {
+				'Content-Type': 'application/json',
+				'token': this.props.jwt
+			},
 			first_name: first_name,
 			last_name: last_name,
 			description: description,

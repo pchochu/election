@@ -64,7 +64,8 @@ class CandidateNew extends Component{
 			{ 
 					username:this.state.login,
 					password: this.state.password,
-					address:this.props.address
+					address:this.props.address,
+					type:0
 			})
 
 			/*

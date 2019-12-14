@@ -20,7 +20,8 @@ class GenerateKeys extends Component{
     static async getInitialProps(props){
         const election = Election(props.query.address);
         const address = props.query.address
-    return {address, election};
+        const jwt = getJwtAdministration()
+    return {address, election, jwt};
     }
 
     downloadTxtFile = () => {
@@ -68,6 +69,10 @@ class GenerateKeys extends Component{
                 
                 if(rsaKeyEth != ''){
                     axios.put(constants.ADDRESS + '/setElectionAsCreatedWithKeys', {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'token': this.props.jwt
+                        },
                         address: this.props.address,
                         proposal: propRunning
                     });
@@ -80,14 +85,6 @@ class GenerateKeys extends Component{
         }
 
     onSubmit = async (event) => {
-
-        axios.interceptors.request.use(function (config) {
-            console.log('som tu')
-            return config;
-          }, function (error) {
-            // Do something with request error
-            return Promise.reject(error);
-          });
 
         event.preventDefault();
         this.setState({errorMessage: ''})
@@ -122,6 +119,10 @@ class GenerateKeys extends Component{
 
 
             axios.put(constants.ADDRESS + '/saveRSAPublicKey', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': this.props.jwt
+                },
                     address: this.props.address,
                     RSAPubKey: this.state.RSAPubKey
                 }).catch(() => {

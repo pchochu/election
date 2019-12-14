@@ -5,12 +5,27 @@ import Election from '../../../ethereum/election'
 import CardAdmin from '../../../components/CardAdmin'
 import CardAdminProposal from '../../../components/CardAdminProposal'
 import axios from 'axios'
+import {getJwtAdministration} from '../../../helper/jwtAdministration'
+import {Router} from '../../../routes';
+
 const {constants} = require('../../../helper/constants').default;
 
 
 class Administration extends Component{
     
 	static async getInitialProps(props){
+
+        const jwt = getJwtAdministration()
+        if(!jwt){ Router.pushRoute(`/`)}
+        await axios.post(constants.ADDRESS +  '/authenticateAdmin', 
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                'token': jwt
+            },
+        }).catch( error => {
+            Router.pushRoute(`/elections/administration/login/1`)
+        })
 
 		const elections = await factory.methods.getDeployedElections().call();
         const administratorAddress = props.query.adminAddress

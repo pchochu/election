@@ -8,7 +8,9 @@ const app = next({ dev });
 const handler = routes.getRequestHandler(app);
 const queries = require('./db/queries');
 const jwt = require('jsonwebtoken');
-const verify = require('./middlewares/verifyToken')
+const verifyVoter = require('./middlewares/verifyToken')
+const verifyAdmin = require('./middlewares/verifyAdmin')
+const verifyFactory = require('./middlewares/verifyFactory')
 
 const NodeRSA = require('node-rsa');
 let multer = require('multer');
@@ -23,6 +25,14 @@ app.prepare().then(() => {
   const httpApp = express();
   httpApp.use( bodyParser.json() );
   httpApp.use(cors())
+
+  httpApp.post('/authenticateAdmin', verifyAdmin, async(req,res) => {
+    return res.sendStatus(200).send('Authenticated Admin');
+  });
+
+  httpApp.post('/authenticateFactory', verifyFactory, async(req,res) => {
+    return res.sendStatus(200).send('Authenticated Factory');
+  });
   
   httpApp.post('/authenticate', async(req, res) => {
    try{
@@ -86,7 +96,7 @@ app.prepare().then(() => {
     }
   })
 
-  httpApp.post('/upload', upload.any(), async(req, res) => {
+  httpApp.post('/upload', [upload.any(), verifyFactory], async(req, res) => {
     let files = req.files;
     let csv = files[0]['buffer'].toString('ASCII')
     const array = convertCSVToArray(csv, {header:true, type:"object", separator:";"});
@@ -128,7 +138,7 @@ app.prepare().then(() => {
     }
   })
 
-  httpApp.put('/saveRSAPublicKey', async(req, res) => {
+  httpApp.put('/saveRSAPublicKey', verifyFactory, async(req, res) => {
     try {
       const response = await queries.addRSAPubKey(
         {
@@ -142,7 +152,7 @@ app.prepare().then(() => {
     }
   })
   
-  httpApp.put('/setElectionAsCreatedWithKeys', async(req, res) => {
+  httpApp.put('/setElectionAsCreatedWithKeys', verifyFactory, async(req, res) => {
     try {
         let response
 
@@ -221,7 +231,7 @@ app.prepare().then(() => {
     }
   })
   
-  httpApp.get('/getResult', async(req, res) => {
+  httpApp.get('/getResult', verifyFactory, async(req, res) => {
     try {
        const candidates = await queries.getCandidate({
         address:req.query.election_address
@@ -264,7 +274,7 @@ app.prepare().then(() => {
     }
   })
 
-  httpApp.get('/getResultProposal', async(req, res) => {
+  httpApp.get('/getResultProposal', verifyFactory, async(req, res) => {
     try {
       const votesDBProposal = await queries.getVotesProposal({
         address:req.query.election_address
@@ -489,7 +499,7 @@ app.prepare().then(() => {
     }
   })
   
-  httpApp.put('/newElection', async(req, res) => {
+  httpApp.put('/newElection', verifyFactory, async(req, res) => {
     try {
       const response = await queries.newElection(
         {
@@ -504,7 +514,7 @@ app.prepare().then(() => {
     }
   })
   
-  httpApp.put('/newCandidate', async(req, res) => {
+  httpApp.put('/newCandidate', verifyAdmin, async(req, res) => {
     try {
       const response = await queries.newCandidate(
         {
@@ -521,7 +531,7 @@ app.prepare().then(() => {
     }
   })
   
-  httpApp.post('/newVote',verify, async(req, res) => {
+  httpApp.post('/newVote',verifyVoter, async(req, res) => {
     const rsa_pub_key_election = req.body.rsa_pub_key  
     const keyCandidate = new NodeRSA({b: 512});
     const keyVoter = new NodeRSA({b: 512});

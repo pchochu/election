@@ -4,6 +4,7 @@ import Election from '../../../ethereum/election'
 import {Router} from '../../../routes'
 import {Form, Button, Message, TextArea} from 'semantic-ui-react'
 import axios from 'axios';
+import {getJwtAdministration} from '../../../helper/jwtAdministration'
 const {constants} = require('../../../helper/constants').default;
 
 class SubmitResults extends Component{
@@ -17,8 +18,9 @@ class SubmitResults extends Component{
 
 	static async getInitialProps(props){
 		const {address, account, req} = props.query;
+		const jwt = getJwtAdministration()
 		
-		return {address, account};
+		return {address, account, jwt};
 	}
 
 	uploadWinner = async event => {
@@ -61,8 +63,12 @@ class SubmitResults extends Component{
 
 		let getResults
 		try{
-        	getResults = await axios.get(constants.ADDRESS + '/getResult',
+			getResults = await axios.get(constants.ADDRESS + '/getResult',
 			{ 
+				headers: {
+					'Content-Type': 'application/json',
+					'token': this.props.jwt
+				},
 				params: {
                 	election_address:this.props.address,
                 	RSAkey:this.state.rsa,
