@@ -20,15 +20,14 @@ export default () => {
 							Skontroluj hlas
 						</Menu.Item>
 				</Link>
-			
-			<Menu.Menu position="right">
-				<Link route="/elections/administration/authenticationElection">
+				<Menu.Menu position="right">
+				<Link route="/elections/administration/login/1">
 					<a className="item">
 					<Icon name='settings' />
 						Správa volieb
 					</a>
 				</Link>
-				<Link route="/elections/administration/authentication">
+				<Link route="/elections/administration/login/2">
 					<a className="item">
 					<Icon name='settings' />
 						Administrácia volieb

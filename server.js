@@ -8,7 +8,7 @@ const app = next({ dev });
 const handler = routes.getRequestHandler(app);
 const queries = require('./db/queries');
 const jwt = require('jsonwebtoken');
-const verify = require('./verifyToken')
+const verify = require('./middlewares/verifyToken')
 
 const NodeRSA = require('node-rsa');
 let multer = require('multer');
@@ -45,20 +45,43 @@ app.prepare().then(() => {
     //     }
     //   }
     //   ); 
-
-      const response = await queries.getIsAdminUser(
+      var token
+      const type = await queries.getUserAuth(
         {
-          address: req.body.address,
           id_voter: req.body.username,
+          type: req.body.type
         });
 
-      const token = jwt.sign({_id:req.body.username}, 'isVoter', { expiresIn: 5 })
+
+        if(req.body.type == 1 && type.length > 0){
+          token = jwt.sign({_id:req.body.username, type:1}, 'isAdmin')
+        } else if (req.body.type == 2 && type.length > 0){
+          token = jwt.sign({_id:req.body.username, type:2}, 'isFactory')
+        } else {
+          token = jwt.sign({_id:req.body.username, type:0}, 'isVoter', { expiresIn: 5 })
+        }
+
       res.header('auth-token', token).send(token);
 
 
       // client.unbind();
     } catch (error) {
       console.log('Err authenticate', error);
+      return res.sendStatus(500);
+    }
+  })
+
+  httpApp.get('/getUserAuth', async(req, res) => {
+    try {
+      const response = await queries.getUserAuth(
+        {
+          id_voter: req.query.username,
+          type: req.query.type
+        });
+
+      return res.send(response)
+    } catch (error) {
+      console.log('Error getUserAuth', error);
       return res.sendStatus(500);
     }
   })
@@ -383,7 +406,7 @@ app.prepare().then(() => {
 
       return res.send(vote)
     } catch (error) {
-      console.log('Error fetch getUserVote', error);
+      console.log('Error fetch getVotedInElection', error);
       return res.sendStatus(500);
     }
   })

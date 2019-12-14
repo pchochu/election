@@ -31,6 +31,21 @@ const getIsAdminUser = async(props) => {
 		}
 }
 
+const getUserAuth = async(props) => {
+	const pool = connection.getPool();
+	try{
+		var sql = "SELECT * FROM eligibleVoter WHERE id_voter = ? AND isAdmin = ?";
+		var inserts = [props.id_voter, props.type];
+		sql = mysql.format(sql, inserts);
+
+		const res = await pool.query(sql)
+		await pool.end()
+		return res.rows;
+	} catch (error){
+		console.log('db error', error)
+		}
+}
+
 const getDescriptionOfElection = async(props) => {
 	const pool = connection.getPool();
 	try{
@@ -581,5 +596,6 @@ module.exports =
 	getVotesProposal,
 	setFinishedUploadedProposal,
 	decryptVoteProposal,
-	getIsAdminUser
+	getIsAdminUser,
+	getUserAuth
 }
