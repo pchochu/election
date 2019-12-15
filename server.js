@@ -55,21 +55,23 @@ app.prepare().then(() => {
     //     }
     //   }
     //   ); 
-      var token
+
+      var token = ''
       const type = await queries.getUserAuth(
         {
           id_voter: req.body.username,
           type: req.body.type
         });
 
-
-        if(req.body.type == 1 && type.length > 0){
-          token = jwt.sign({_id:req.body.username, type:1}, 'isAdmin')
-        } else if (req.body.type == 2 && type.length > 0){
-          token = jwt.sign({_id:req.body.username, type:2}, 'isFactory')
-        } else {
-          token = jwt.sign({_id:req.body.username, type:0}, 'isVoter', { expiresIn: 5 })
-        }
+        if(type !== undefined){
+          if(req.body.type == 1 && type.length > 0){
+            token = jwt.sign({_id:req.body.username, type:1}, 'isAdmin')
+          } else if (req.body.type == 2 && type.length > 0){
+            token = jwt.sign({_id:req.body.username, type:2}, 'isFactory')
+          } else if(req.body.type == 0 && type.length > 0){
+            token = jwt.sign({_id:req.body.username, type:0}, 'isVoter', { expiresIn: 5 })
+          }
+      }
 
       res.header('auth-token', token).send(token);
 
@@ -233,7 +235,7 @@ app.prepare().then(() => {
     }
   })
   
-  httpApp.get('/getResult', verifyFactory, async(req, res) => {
+  httpApp.get('/getResult', async(req, res) => {
     try {
        const candidates = await queries.getCandidate({
         address:req.query.election_address
@@ -276,7 +278,7 @@ app.prepare().then(() => {
     }
   })
 
-  httpApp.get('/getResultProposal', verifyFactory, async(req, res) => {
+  httpApp.get('/getResultProposal', async(req, res) => {
     try {
       const votesDBProposal = await queries.getVotesProposal({
         address:req.query.election_address
@@ -658,8 +660,9 @@ app.prepare().then(() => {
     }
   })
   
-  httpApp.get('/createMerkleRoot', verifyAdmin, async(req, res) => {
+  httpApp.get('/createMerkleRoot', async(req, res) => {
     try {
+
       const address = req.query.address
       const votes = await queries.getNonVotes({
         address: address
@@ -686,7 +689,7 @@ app.prepare().then(() => {
     }
   })
 
-  httpApp.get('/createMerkleRootProposal', verifyAdmin, async(req, res) => {
+  httpApp.get('/createMerkleRootProposal', async(req, res) => {
     try {
       const address = req.query.address
       const votes = await queries.getNonVotesProposal({

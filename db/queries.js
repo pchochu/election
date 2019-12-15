@@ -38,6 +38,7 @@ const getUserAuth = async(props) => {
 		var inserts = [props.id_voter, props.type];
 		sql = mysql.format(sql, inserts);
 
+		
 		const res = await pool.query(sql)
 		await pool.end()
 		return res.rows;

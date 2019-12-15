@@ -15,12 +15,13 @@ class CandidateNew extends Component{
 		description: '', 
 		loading: false,
 		errorMessage: '',
+		jwt: ''
 	};
 
 	async componentDidMount(){
 		const jwt = await getJwtAdministration()
         if(jwt){
-            await axios.post(constants.ADDRESS +  '/authenticateFactory', 
+            await axios.post(constants.ADDRESS +  '/authenticateAdmin', 
             {
                 headers: {
                     'Content-Type': 'application/json',
@@ -30,16 +31,16 @@ class CandidateNew extends Component{
                 
             }).catch(error => {
                 console.log("Neulozeny token")
-                Router.pushRoute(`/elections/administration/login/2`);
+                Router.pushRoute(`/elections/administration/login/1`);
             })
         } else {
-            Router.pushRoute(`/elections/administration/login/2`);
-        }
+            Router.pushRoute(`/elections/administration/login/1`);
+		}
+		this.setState({jwt})
 	}
 
 	static async getInitialProps(props){
 		const {address, req} = props.query;
-		const jwt = getJwtAdministration()
 		
 		const election = Election(address);
 		const candidateCount = await election.methods.getCandidateCount().call()
@@ -66,7 +67,6 @@ class CandidateNew extends Component{
 			ethCandidates:candidatesEthereum, 
 			proposalCandidates: proposalJson,
 			isProposal: isProposal,
-			jwt:jwt
 		};
 	}
 
@@ -101,7 +101,7 @@ class CandidateNew extends Component{
 		{
 			headers: {
 				'Content-Type': 'application/json',
-				'token': this.props.jwt
+				'token': this.state.jwt
 			},
 			first_name: first_name,
 			last_name: last_name,

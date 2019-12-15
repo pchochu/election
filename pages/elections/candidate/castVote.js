@@ -65,7 +65,7 @@ class CandidateNew extends Component{
 					username:this.state.login,
 					password: this.state.password,
 					address:this.props.address,
-					type:0
+					type:'0'
 			})
 
 			/*
@@ -135,6 +135,7 @@ class CandidateNew extends Component{
 			alert('Vyborne, zahlasoval si a stiahol sa ti privatny kluc')
 
       }catch (e){
+		  this.setState({errorMessage: 'Problem s hlasovanim'})
 	  }
 
 	};

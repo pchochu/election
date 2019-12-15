@@ -13,7 +13,7 @@ const {constants} = require('../../../helper/constants').default;
 
 class Administration extends Component{
     state = {
-        token:''
+        token : ''
     }
 
     async componentDidMount(){
@@ -34,27 +34,10 @@ class Administration extends Component{
         } else {
             Router.pushRoute(`/elections/administration/login/1`);
         }
+        this.setState({token:jwt})
 	}
     
 	static async getInitialProps(props){
-
-        if (typeof window !== 'undefined') {
-            const jwt = getJwtAdministration()
-            if(jwt){
-                await axios.post(constants.ADDRESS +  '/authenticateAdmin', 
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'token': jwt
-                    },
-                }).then( e => {
-                    
-                }).catch(error => {
-                    console.log("Neulozeny token")
-                    Router.pushRoute(`/elections/administration/login/1`);
-                })
-        }
-    }
 
 		const elections = await factory.methods.getDeployedElections().call();
         const administratorAddress = props.query.adminAddress
@@ -145,7 +128,7 @@ class Administration extends Component{
                             votesOnEth = {address['numOfVotesStoredOnEth']}
                             votesNotOnEth = {address['numOfVotesNotStoredOnEth']}
                             votesTotal = {address['numOfVotesTotal']}
-                            jtw = {this.state.jwt}
+                            jwt = {this.state.token}
                             />;
                 } else if(address != undefined && address['isCreated'] == 'created_proposal_with_keys'){
                     return <CardAdminProposal
@@ -153,7 +136,7 @@ class Administration extends Component{
                             id={index}
                             electionInfoEth={this.props.electionInfo[index]}
                             address={address}
-                            jtw = {this.state.jwt}
+                            jwt = {this.state.token}
                             />;
                 }
             })

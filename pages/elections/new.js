@@ -47,7 +47,8 @@ class ElectionNew extends React.Component {
             })
         } else {
             Router.pushRoute(`/elections/administration/login/2`);
-        }
+		}
+		this.setState({token:jwt})
 	}
 
 	downloadTxtFile = () => {

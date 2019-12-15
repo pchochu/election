@@ -6,7 +6,6 @@ import {Form, Button, Message, TextArea} from 'semantic-ui-react'
 import axios from 'axios';
 import {getJwtAdministration} from '../../../helper/jwtAdministration'
 const {constants} = require('../../../helper/constants').default;
-import {Router} from '../../../routes'
 
 class SubmitResults extends Component{
 	state = {
@@ -14,7 +13,8 @@ class SubmitResults extends Component{
 		account:'',
 		results: '',
 		msg: [],
-		errorMessage: ''
+		errorMessage: '',
+		token: ''
 	};
 
 	async componentDidMount(){
@@ -34,14 +34,14 @@ class SubmitResults extends Component{
             })
         } else {
             Router.pushRoute(`/elections/administration/login/2`);
-        }
+		}
+		this.setState({token:jwt})
 	}
 
 	static async getInitialProps(props){
 		const {address, account, req} = props.query;
-		const jwt = getJwtAdministration()
 		
-		return {address, account, jwt};
+		return {address, account};
 	}
 
 	uploadWinner = async event => {
@@ -88,7 +88,7 @@ class SubmitResults extends Component{
 			{ 
 				headers: {
 					'Content-Type': 'application/json',
-					'token': this.props.jwt
+					'token': this.state.token
 				},
 				params: {
                 	election_address:this.props.address,
