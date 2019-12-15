@@ -12,20 +12,46 @@ const {constants} = require('../../../helper/constants').default;
 
 
 class FactoryAdministration extends Component{
+
+    async componentDidMount(){
+        const jwt = await getJwtAdministration()
+        if(jwt){
+            await axios.post(constants.ADDRESS +  '/authenticateFactory', 
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': jwt
+                },
+            }).then( e => {
+                
+            }).catch(error => {
+                console.log("Neulozeny token")
+                Router.pushRoute(`/elections/administration/login/2`);
+            })
+        } else {
+            Router.pushRoute(`/elections/administration/login/2`);
+        }
+	}
     
 	static async getInitialProps(props){
 
-        const jwt = getJwtAdministration()
-        if(!jwt){ Router.pushRoute(`/`)}
-        await axios.post(constants.ADDRESS +  '/authenticateFactory', 
-        {
-            headers: {
-                'Content-Type': 'application/json',
-                'token': jwt
-            },
-        }).catch( error => {
-            Router.pushRoute(`/elections/administration/login/2`)
-        })
+        if (typeof window !== 'undefined') {
+            const jwt = getJwtAdministration()
+            if(jwt){
+                await axios.post(constants.ADDRESS +  '/authenticateFactory', 
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'token': jwt
+                    },
+                }).then( e => {
+                    
+                }).catch(error => {
+                    console.log("Neulozeny token")
+                    Router.pushRoute(`/elections/administration/login/2`);
+                })
+        }
+    }
 
 		const elections = await factory.methods.getDeployedElections().call();
         const administratorAddress = props.query.adminAddress

@@ -5,6 +5,7 @@ import axios from 'axios';
 import Election from '../../../ethereum/election';
 import web3 from '../../../ethereum/web3';
 const {constants} = require('../../../helper/constants').default;
+import {Router} from '../../../routes'
 
 class GenerateKeys extends Component{
 	state = {
@@ -16,6 +17,46 @@ class GenerateKeys extends Component{
         errorMessage: '',
         infoMessage: '',
     };
+
+    async componentDidMount(){
+		const jwt = await getJwtAdministration()
+        if(jwt){
+            await axios.post(constants.ADDRESS +  '/authenticateFactory', 
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': jwt
+                },
+            }).then( e => {
+                
+            }).catch(error => {
+                console.log("Neulozeny token")
+                Router.pushRoute(`/elections/administration/login/2`);
+            })
+        } else {
+            Router.pushRoute(`/elections/administration/login/2`);
+        }
+	}
+
+    async componentDidMount(){
+		const jwt = await getJwtAdministration()
+        if(jwt){
+            await axios.post(constants.ADDRESS +  '/authenticateFactory', 
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': jwt
+                },
+            }).then( e => {
+                
+            }).catch(error => {
+                console.log("Neulozeny token")
+                Router.pushRoute(`/elections/administration/login/2`);
+            })
+        } else {
+            Router.pushRoute(`/elections/administration/login/2`);
+        }
+	}
 
     static async getInitialProps(props){
         const election = Election(props.query.address);

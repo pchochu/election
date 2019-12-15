@@ -27,11 +27,11 @@ app.prepare().then(() => {
   httpApp.use(cors())
 
   httpApp.post('/authenticateAdmin', verifyAdmin, async(req,res) => {
-    return res.sendStatus(200).send('Authenticated Admin');
+    return res.status(200).send('overeny');
   });
 
   httpApp.post('/authenticateFactory', verifyFactory, async(req,res) => {
-    return res.sendStatus(200).send('Authenticated Factory');
+    return res.status(200).send('overeny');
   });
   
   httpApp.post('/authenticate', async(req, res) => {

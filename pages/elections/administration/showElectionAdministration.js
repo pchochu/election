@@ -12,20 +12,49 @@ const {constants} = require('../../../helper/constants').default;
 
 
 class Administration extends Component{
+    state = {
+        token:''
+    }
+
+    async componentDidMount(){
+        const jwt = await getJwtAdministration()
+        if(jwt){
+            await axios.post(constants.ADDRESS +  '/authenticateAdmin', 
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': jwt
+                },
+            }).then( e => {
+                this.setState({token:jwt})
+            }).catch(error => {
+                console.log("Neulozeny token")
+                Router.pushRoute(`/elections/administration/login/1`);
+            })
+        } else {
+            Router.pushRoute(`/elections/administration/login/1`);
+        }
+	}
     
 	static async getInitialProps(props){
 
-        const jwt = getJwtAdministration()
-        if(!jwt){ Router.pushRoute(`/`)}
-        await axios.post(constants.ADDRESS +  '/authenticateAdmin', 
-        {
-            headers: {
-                'Content-Type': 'application/json',
-                'token': jwt
-            },
-        }).catch( error => {
-            Router.pushRoute(`/elections/administration/login/1`)
-        })
+        if (typeof window !== 'undefined') {
+            const jwt = getJwtAdministration()
+            if(jwt){
+                await axios.post(constants.ADDRESS +  '/authenticateAdmin', 
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'token': jwt
+                    },
+                }).then( e => {
+                    
+                }).catch(error => {
+                    console.log("Neulozeny token")
+                    Router.pushRoute(`/elections/administration/login/1`);
+                })
+        }
+    }
 
 		const elections = await factory.methods.getDeployedElections().call();
         const administratorAddress = props.query.adminAddress
@@ -72,7 +101,6 @@ class Administration extends Component{
                 numOfVotesNotStoredOnEth: numOfVotesNotStoredOnEth.data[0]['count'],
                 numOfVotesStoredOnEth: numOfVotesStoredOnEth.data[0]['count'],
                 numOfVotesTotal: parseInt(numOfVotesNotStoredOnEth.data[0]['count']) + parseInt(numOfVotesStoredOnEth.data[0]['count']),
-                jwt: jwt 
             }
         }))
 
@@ -117,7 +145,7 @@ class Administration extends Component{
                             votesOnEth = {address['numOfVotesStoredOnEth']}
                             votesNotOnEth = {address['numOfVotesNotStoredOnEth']}
                             votesTotal = {address['numOfVotesTotal']}
-                            jtw = {this.props.jwt}
+                            jtw = {this.state.jwt}
                             />;
                 } else if(address != undefined && address['isCreated'] == 'created_proposal_with_keys'){
                     return <CardAdminProposal
@@ -125,7 +153,7 @@ class Administration extends Component{
                             id={index}
                             electionInfoEth={this.props.electionInfo[index]}
                             address={address}
-                            jtw = {this.props.jwt}
+                            jtw = {this.state.jwt}
                             />;
                 }
             })

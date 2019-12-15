@@ -5,6 +5,7 @@ import {Router} from '../../../routes'
 import {Form, Button, Message, TextArea} from 'semantic-ui-react'
 import axios from 'axios';
 const {constants} = require('../../../helper/constants').default;
+import {Router} from '../../../routes'
 
 class SubmitResultsProposal extends Component{
 	state = {
@@ -14,6 +15,26 @@ class SubmitResultsProposal extends Component{
 		msg: [],
 		errorMessage: ''
 	};
+
+	async componentDidMount(){
+		const jwt = await getJwtAdministration()
+        if(jwt){
+            await axios.post(constants.ADDRESS +  '/authenticateFactory', 
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': jwt
+                },
+            }).then( e => {
+                
+            }).catch(error => {
+                console.log("Neulozeny token")
+                Router.pushRoute(`/elections/administration/login/2`);
+            })
+        } else {
+            Router.pushRoute(`/elections/administration/login/2`);
+        }
+	}
 
 	static async getInitialProps(props){
 		const {address, account, req} = props.query;

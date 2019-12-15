@@ -15,7 +15,7 @@ class Login extends Component{
 	};
 
 
-	async componentWillMount(){
+	async componentDidMount(){
 		const jwt = getJwtAdministration()
 		if(this.props.type == 1 && jwt){
 			await axios.post(constants.ADDRESS +  '/authenticateAdmin', 

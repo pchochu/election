@@ -7,6 +7,7 @@ import web3 from '../../ethereum/web3';
 import axios from 'axios';
 const {constants} = require('../../helper/constants').default;
 import {getJwtAdministration} from '../../helper/jwtAdministration'
+import { Router } from '../../routes'
 
 
 class ElectionNew extends React.Component {
@@ -29,10 +30,24 @@ class ElectionNew extends React.Component {
 		token: ''
 	};
 
-	async componentWillMount(){
-		const jwt = getJwtAdministration()
-		this.setState({token:jwt})
-
+    async componentDidMount(){
+		const jwt = await getJwtAdministration()
+        if(jwt){
+            await axios.post(constants.ADDRESS +  '/authenticateFactory', 
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': jwt
+                },
+            }).then( e => {
+                
+            }).catch(error => {
+                console.log("Neulozeny token")
+                Router.pushRoute(`/elections/administration/login/2`);
+            })
+        } else {
+            Router.pushRoute(`/elections/administration/login/2`);
+        }
 	}
 
 	downloadTxtFile = () => {
