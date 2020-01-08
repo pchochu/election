@@ -6,47 +6,57 @@ const jwt = require('jsonwebtoken')
 const {constants} = require('../../../helper/constants').default;
 import {Router} from '../../../routes';
 import {getJwtAdministration} from '../../../helper/jwtAdministration'
+import web3 from '../../../ethereum/web3'
 
 class Login extends Component{
 	state = {
 		login: '',
 		errorMessage: '',
 		password: '',
-		loading: false
+		loading: false,
+		showMsgNoMask: false,
 	};
 
 
 	 componentWillMount(){
+		this.setState({showMsgNoMask: false})
 		this.setState({loading:true})
 	}
 
 	async componentDidMount(){
-		const jwt = getJwtAdministration()
-		if(this.props.type == 1 && jwt){
-			await axios.post(constants.ADDRESS +  '/authenticateAdmin', 
-			{
-				headers: {
-					'Content-Type': 'application/json',
-					'token': jwt
-				},
-			}).then( e => {
-				Router.pushRoute(`/elections/administration/authenticationElection/`);
-			}).catch(error => {
-				console.log("Neulozeny token")
-				this.setState({loading:false})
-			})} else if(this.props.type == 2 && jwt){
-				await axios.post(constants.ADDRESS +  '/authenticateFactory', 
+		const accounts = await web3.eth.getAccounts();
+		const address = accounts[0]
+		if(!address){
+			this.setState({showMsgNoMask: true})
+			this.setState({loading:false})
+		} else{
+			const jwt = getJwtAdministration()
+			if(this.props.type == 1 && jwt){
+				await axios.post(constants.ADDRESS +  '/authenticateAdmin', 
 				{
 					headers: {
 						'Content-Type': 'application/json',
 						'token': jwt
 					},
 				}).then( e => {
-					Router.pushRoute(`/elections/administration/authentication/`);
+					Router.pushRoute(`/elections/${address}/administrationElections/`)
 				}).catch(error => {
 					console.log("Neulozeny token")
 					this.setState({loading:false})
-				})
+				})} else if(this.props.type == 2 && jwt){
+					await axios.post(constants.ADDRESS +  '/authenticateFactory', 
+					{
+						headers: {
+							'Content-Type': 'application/json',
+							'token': jwt
+						},
+					}).then( e => {
+						Router.pushRoute(`/elections/${address}/administrationFactory/`)
+					}).catch(error => {
+						console.log("Neulozeny token")
+						this.setState({loading:false})
+					})
+			}
 		}
 	}
 
@@ -56,6 +66,15 @@ class Login extends Component{
 			type:type
 		};
 	}
+
+	showMsg() {
+			return( <Message negative>
+					<Message.Header>Ojoj, nastal nejaký problém</Message.Header>
+					<p>Pravdepodobne nemáš nainštalovanú MetaMask</p>
+					<p>Skús znovu opakovat akciu po prihlaseni do MetaMask</p>
+				</Message>
+			)
+		}
 
 	onSubmit = async event => {
 		event.preventDefault();
@@ -111,7 +130,15 @@ class Login extends Component{
 			)
 		}
 
-		if(this.state.loading == false){
+		if(this.state.showMsgNoMask == true){
+			return (
+				<Layout>
+					{this.showMsg()}
+				</Layout>
+				)
+		}
+
+		if(this.state.loading == false && this.state.showMsgNoMask == false){
 			return(
 				<Layout>
 					<h3>Prihlasenie</h3>

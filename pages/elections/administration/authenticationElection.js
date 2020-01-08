@@ -3,7 +3,6 @@ import Layout from '../../../components/Layout';
 import {Router} from '../../../routes';
 import web3 from '../../../ethereum/web3'
 import {Message} from 'semantic-ui-react'
-import factory from '../../../ethereum/factory'
 
 
 class Authentication extends Component{
