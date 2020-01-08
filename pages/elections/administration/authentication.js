@@ -10,7 +10,6 @@ class Authentication extends Component{
 
         static async getInitialProps(){
 				const accounts = await web3.eth.getAccounts();
-				console.log(accounts[0])
 				let isFactory;
 				if (accounts.length > 0){
 					isFactory = await factory.methods.administrators(accounts[0]).call();
@@ -22,7 +21,6 @@ class Authentication extends Component{
 		
 	static async componentDidMount() {
 			const accounts = await web3.eth.getAccounts();
-			console.log(accounts[0])
 		  }
 
         pushForward() {

@@ -16,7 +16,7 @@ class Administration extends Component{
         token : ''
     }
 
-    async componentDidMount(){
+    async componentWillMount(){
         const jwt = await getJwtAdministration()
         if(jwt){
             await axios.post(constants.ADDRESS +  '/authenticateAdmin', 

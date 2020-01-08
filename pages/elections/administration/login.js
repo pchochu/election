@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import Layout from '../../../components/Layout'
-import {Form, Button, Message, Input, Accordion, Label} from 'semantic-ui-react'
+import {Form, Button, Message, Input, Accordion, Label, Segment, Dimmer, Loader} from 'semantic-ui-react'
 import axios from 'axios';
 const jwt = require('jsonwebtoken')
 const {constants} = require('../../../helper/constants').default;
@@ -12,8 +12,13 @@ class Login extends Component{
 		login: '',
 		errorMessage: '',
 		password: '',
+		loading: false
 	};
 
+
+	 componentWillMount(){
+		this.setState({loading:true})
+	}
 
 	async componentDidMount(){
 		const jwt = getJwtAdministration()
@@ -28,6 +33,7 @@ class Login extends Component{
 				Router.pushRoute(`/elections/administration/authenticationElection/`);
 			}).catch(error => {
 				console.log("Neulozeny token")
+				this.setState({loading:false})
 			})} else if(this.props.type == 2 && jwt){
 				await axios.post(constants.ADDRESS +  '/authenticateFactory', 
 				{
@@ -39,12 +45,12 @@ class Login extends Component{
 					Router.pushRoute(`/elections/administration/authentication/`);
 				}).catch(error => {
 					console.log("Neulozeny token")
+					this.setState({loading:false})
 				})
 		}
 	}
 
 	static async getInitialProps(props){
-		
 		const {type} = props.query;
 		return {
 			type:type
@@ -95,32 +101,44 @@ class Login extends Component{
 	};
 
 	render(){
-		return(
-			<Layout>
-				<h3>Prihlasenie</h3>
-					<Form onSubmit={this.onSubmit} error={!!this.state.errorMessage} success={!!this.state.key}>
-						<Form.Field required>
-							<label>xlogin</label>
-							<Input 
-								placeholder='Login'
-								value={this.state.login}
-								onChange={event =>{this.setState({errorMessage:''}), this.setState({login: event.target.value})}}
-							/>
-						</Form.Field>
+		if (this.state.loading == true){
+			return (
+				<Layout>
+					<div class="ui active dimmer">
+						<div class="ui loader"></div>
+					</div>
+				</Layout>
+			)
+		}
 
-						<Form.Field required>
-							<label>Heslo</label>
-							<Input 
-								type="password"
-								placeholder='Heslo'
-								value={this.state.password}
-								onChange={event =>{this.setState({errorMessage:''}), this.setState({password: event.target.value})}}
-							/>
-						</Form.Field>
-						<Button color={constants.COLOR} >Login</Button>	
-					</Form>
-			</Layout>
-			);
+		if(this.state.loading == false){
+			return(
+				<Layout>
+					<h3>Prihlasenie</h3>
+						<Form onSubmit={this.onSubmit} error={!!this.state.errorMessage} success={!!this.state.key}>
+							<Form.Field required>
+								<label>xlogin</label>
+								<Input 
+									placeholder='Login'
+									value={this.state.login}
+									onChange={event =>{this.setState({errorMessage:''}), this.setState({login: event.target.value})}}
+								/>
+							</Form.Field>
+
+							<Form.Field required>
+								<label>Heslo</label>
+								<Input 
+									type="password"
+									placeholder='Heslo'
+									value={this.state.password}
+									onChange={event =>{this.setState({errorMessage:''}), this.setState({password: event.target.value})}}
+								/>
+							</Form.Field>
+							<Button color={constants.COLOR} >Login</Button>	
+						</Form>
+				</Layout>
+				);
+		}
 	}
 }
 

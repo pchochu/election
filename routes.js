@@ -10,6 +10,7 @@ routes
   .add('/elections/:address/candidate/new', '/elections/candidate/new')
   .add('/elections/:address/candidate/show', '/elections/candidate/show')
   .add('/elections/administration/authentication/', '/elections/administration/authentication')
+  .add('/elections/administration/authenticationElection/', '/elections/administration/authenticationElection')
   .add('/elections/administration/login/:type', '/elections/administration/login')
   .add('/elections/:adminAddress/administrationElections/', '/elections/administration/showElectionAdministration')
   .add('/elections/:adminAddress/administrationFactory/', '/elections/administration/showFactoryAdministration')

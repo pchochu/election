@@ -13,7 +13,7 @@ const {constants} = require('../../../helper/constants').default;
 
 class FactoryAdministration extends Component{
 
-    async componentDidMount(){
+    async componentWillMount(){
         const jwt = await getJwtAdministration()
         if(jwt){
             await axios.post(constants.ADDRESS +  '/authenticateFactory', 
