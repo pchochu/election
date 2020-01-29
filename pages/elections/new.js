@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Layout from '../../components/Layout';
-import { Form, Button, Input, Message, TextArea, Accordion, Label, Checkbox } from 'semantic-ui-react';
+import { Form, Button, Input, Message, TextArea, Accordion, Label, Checkbox, Icon } from 'semantic-ui-react';
 import factory from '../../ethereum/factory';
 import Election from '../../ethereum/election'
 import web3 from '../../ethereum/web3';
@@ -27,7 +27,8 @@ class ElectionNew extends React.Component {
 		selectedFile: null,
 		msg: '',
 		checked: false,
-		token: ''
+		token: '',
+      	admins: [{ name: "" }]
 	};
 
     async componentDidMount(){
@@ -299,6 +300,38 @@ class ElectionNew extends React.Component {
 	toggle = () => {
 		this.setState({checked: !this.state.checked})
 	}
+
+	
+		handleNameChange = evt => {
+			this.setState({ name: evt.target.value });
+		};
+	
+	  handleAdminNameChange = idx => evt => {
+		const newAdmin = this.state.admins.map((admin, sidx) => {
+		  if (idx !== sidx) return admin;
+		  return { ...admin, name: evt.target.value };
+		});
+	
+		this.setState({ admins: newAdmin });
+	  };
+	
+	  handleSubmit = evt => {
+		const {admins} = this.state;
+		let result = admins.map(a => a.name);
+		console.log(result)
+	  };
+	
+	  handleAddAdmin = () => {
+		this.setState({
+		  admins: this.state.admins.concat([{ name: "" }])
+		});
+	  };
+	
+	  handleRemoveAdmin = idx => () => {
+		this.setState({
+		  admins: this.state.admins.filter((s, sidx) => idx !== sidx)
+		});
+	  };
 	
 	render() {
 		const { activeIndex } = this.state
@@ -325,13 +358,15 @@ class ElectionNew extends React.Component {
 								onChange={event => this.setState({ descriptionOfElection: event.target.value })} />
 						</Form.Field>
 
-						<Form.Field required>
+						
+
+						{/* <Form.Field required>
 							<label>Adresa člena dozornej rady</label>
 							<Input
 								value={this.state.address1}
 								onChange={event => this.setState({ address1: event.target.value })}
 							/>
-						</Form.Field>
+						</Form.Field> */}
 
 						<Form.Field>
 						<div>
@@ -348,6 +383,36 @@ class ElectionNew extends React.Component {
 							<label>Zoznam voličov</label>
 							<input type="file" name="file" onChange={this.onChangeHandler} />	
 						</Form.Field>
+						
+						<Form.Field required>
+						<label>Adresy clenov dozornej rady</label>
+							{this.state.admins.map((admin, idx) => (
+
+							
+							<div class="ui form" style={{marginBottom: '10px' }}>
+							<div class="required eight wide field">
+								<div class="ui action input">
+								<input
+								type="text"
+								placeholder={`Ethereum adresa ${idx + 1}. admina`}
+								value={admin.name}
+								onChange={this.handleAdminNameChange(idx)}
+								/>
+								<Button icon color='red' onClick={this.handleRemoveAdmin(idx)} className="small"><Icon name='remove' /> </Button>
+								</div>  
+							</div>
+							</div>))}
+							
+							<br></br>
+							<Button color={constants.COLOR} type="button" onClick={this.handleAddAdmin} className="small">+</Button>
+							{/* <Button color={constants.COLOR} type="button" onClick={ () => this.handleSubmit() }>Submit</Button> */}
+						</Form.Field>
+						<br></br>
+						<br></br>
+
+
+ 
+
 
 						<Message error header="Ojoj, niečo sa pokazilo!" content={this.state.errorMessage} />
 						<Message success header='Výborne!' content={this.state.msg}/>

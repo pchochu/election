@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import Layout from '../../../components/Layout'
-import {Form, Button, Message, Input, Accordion, Label, Segment, Dimmer, Loader} from 'semantic-ui-react'
+import {Form, Button, Message, Input} from 'semantic-ui-react'
 import axios from 'axios';
 const jwt = require('jsonwebtoken')
 const {constants} = require('../../../helper/constants').default;
@@ -58,6 +58,7 @@ class Login extends Component{
 					})
 			}
 		}
+		this.setState({loading:false})
 	}
 
 	static async getInitialProps(props){
