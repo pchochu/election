@@ -19,6 +19,9 @@ const { MerkleTree } = require('merkletreejs')
 const SHA256 = require('crypto-js/sha256')
 const { convertCSVToArray } = require('convert-csv-to-array');
 var ldap = require('ldapjs');
+require('dotenv').config()
+
+console.log(process.env)
 
 app.prepare().then(() => {
 

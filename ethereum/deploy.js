@@ -1,10 +1,12 @@
 const HDWalletProvider = require('truffle-hdwallet-provider');
 const Web3 = require('web3');
 const compiledElection = require('./build/ElectionFactory.json')
+const path = require('path')
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') })
 
 const provider = new HDWalletProvider(
-	'output earth elephant skirt couple print collect rail lonely steel trophy account',
-	'https://rinkeby.infura.io/v3/0679d2fa114c4afd80d8924049a5fe55'
+	process.env.ethPhrase,
+	process.env.infuraNode
 	);
 
 const web3 = new Web3(provider);
