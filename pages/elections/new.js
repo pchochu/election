@@ -76,12 +76,14 @@ class ElectionNew extends React.Component {
 	};
 
 	createElectionETH = async (event) => { 
-		if(web3.utils.isAddress(this.state.address1)){
+		const {admins} = this.state;
+		let result = admins.map(a => a.name);
+		if(web3.utils.isAddress(result[0])){
 			try{
 				const accounts = await web3.eth.getAccounts();
 				var isProposalRound = (this.state.checked)? 1:0
 				await factory.methods
-					.createElection(this.state.nameOfTheElection, this.state.address1, isProposalRound, isProposalRound)
+					.createElection(this.state.nameOfTheElection, result[0], isProposalRound, isProposalRound)
 					.send({
 						from: accounts[0]
 					});
@@ -206,8 +208,13 @@ class ElectionNew extends React.Component {
 		const election = Election(this.state.address);
 		const accounts = await web3.eth.getAccounts();
 
-		if (web3.utils.isAddress(this.state.address1)) {
-			this.createAdministrator(election, this.state.address1, accounts)
+		const {admins} = this.state;
+		let result = admins.map(a => a.name);
+
+		for(var i = 0; i < result.length; i++){
+			if(web3.utils.isAddress(result[i])){
+				this.createAdministrator(election, result[i], accounts)
+			} 
 		}
 	}
 
@@ -238,17 +245,37 @@ class ElectionNew extends React.Component {
 			return
 		}
 
-		if (this.state.address1 === '') {
-			this.setState({ errorMessage: 'Nezadaná adresa administrátora volieb' })
-			this.setState({ loading: false });
-			return
-		}
-
 		if (this.state.selectedFile === null) {
 			this.setState({ errorMessage: 'Prazdny subor volicov' })
 			this.setState({ loading: false });
 			return
 		}
+
+
+		const {admins} = this.state;
+		let result = admins.map(a => a.name);
+		
+		if(result.length == 0){
+			this.setState({ errorMessage: 'Prazdny zoznam ethereum adries pre adminov' })
+			this.setState({ loading: false });
+		}
+
+		var correctEthAdresses = true
+		for(var i = 0; i < result.length; i++){
+			if(result[i] != ''){
+				if(!web3.utils.isAddress(result[i])){
+					correctEthAdresses = false
+				}	
+			} else{
+				correctEthAdresses = false
+			}
+		}
+		
+		if(!correctEthAdresses){
+			this.setState({ errorMessage: 'Nevalidne adresy adminov. Nemas prazdne okno?' })
+			this.setState({ loading: false });
+		}
+	
 
 		try {
 			this.setState({msg: 'Ukladam volby na blockchain. Nezabudni potvrdit v MetaMask'})
@@ -256,7 +283,9 @@ class ElectionNew extends React.Component {
 			await this.createElectionETH();
 			this.setState({msg: 'Ziskavam informacie o ulozenych volbach'})
 			await this.getLastElection();
-			// await this.createAdministrators()
+			this.setState({msg: 'Ukladam administratorov na blockchain'})
+			alert('Nezabudni potvrdit v MetaMask');
+			await this.createAdministrators()
 			this.setState({msg: 'Ukladam volby do databazy'})
 			await this.createElectionDB()
 			this.setState({msg: 'Vytvaram a ukladam kluce do databazy a na blockchain. Nezabudni potvrdi v MetaMask'})
@@ -332,6 +361,7 @@ class ElectionNew extends React.Component {
 		  admins: this.state.admins.filter((s, sidx) => idx !== sidx)
 		});
 	  };
+
 	
 	render() {
 		const { activeIndex } = this.state
@@ -409,9 +439,6 @@ class ElectionNew extends React.Component {
 						</Form.Field>
 						<br></br>
 						<br></br>
-
-
- 
 
 
 						<Message error header="Ojoj, niečo sa pokazilo!" content={this.state.errorMessage} />

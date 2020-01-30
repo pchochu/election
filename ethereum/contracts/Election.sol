@@ -119,8 +119,10 @@ contract Election{
     }
     
     function createAdministrator(address administrator) public restricted{
+        if(!administrators[administrator]){
         administrators[administrator] = true;
         administratorsCount++;
+        }
     }
     
     function createApprovalToStart(address administrator) public restricted{

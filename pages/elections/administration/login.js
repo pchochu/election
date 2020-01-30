@@ -26,11 +26,12 @@ class Login extends Component{
 	async componentDidMount(){
 		const accounts = await web3.eth.getAccounts();
 		const address = accounts[0]
+		var jwt
 		if(!address){
 			this.setState({showMsgNoMask: true})
 			this.setState({loading:false})
 		} else{
-			const jwt = getJwtAdministration()
+			jwt = getJwtAdministration()
 			if(this.props.type == 1 && jwt){
 				await axios.post(constants.ADDRESS +  '/authenticateAdmin', 
 				{
@@ -58,7 +59,9 @@ class Login extends Component{
 					})
 			}
 		}
-		this.setState({loading:false})
+		if(! jwt){
+			this.setState({loading:false})
+		}
 	}
 
 	static async getInitialProps(props){
