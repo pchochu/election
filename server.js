@@ -21,8 +21,6 @@ const { convertCSVToArray } = require('convert-csv-to-array');
 var ldap = require('ldapjs');
 require('dotenv').config()
 
-console.log(process.env)
-
 app.prepare().then(() => {
 
   const httpApp = express();
