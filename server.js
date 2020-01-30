@@ -563,17 +563,19 @@ app.prepare().then(() => {
   httpApp.post('/newVoteProposal', verifyVoter, async(req, res) => {
 
     try {
+    console.log('1.1')
     const rsa_pub_key_election = req.body.rsa_pub_key  
     const keyCandidate = new NodeRSA({b: 512});
     const keyVoter = new NodeRSA({b: 512});
 
     keyCandidate.importKey(rsa_pub_key_election, 'pkcs8-public-pem')
+    console.log('1.2')
 
     const candidate = keyCandidate.encrypt(req.body.id_candidate, 'base64');
     const voter = keyVoter.encrypt(req.body.id_voter, 'base64')
 
     const privateKeyVoter = keyVoter.exportKey('pkcs8-private-pem')
-
+    console.log('1.3')
  
       const response = await queries.newVoteProposal(
         {
@@ -581,6 +583,7 @@ app.prepare().then(() => {
           candidate_id: candidate,
           voter_id: voter,      
         });
+        console.log('1.4')
       return res.send(privateKeyVoter)
     } catch (error) {
       console.log('Error put newVoteProposal', error);

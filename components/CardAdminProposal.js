@@ -65,7 +65,7 @@ class CardAdminProposal extends Component{
                     {this.handleShow()}   
                     Router.pushRoute(`/elections/${accounts[0]}/administrationElections/`)  
                 } else{
-                    this.setState({dimmedMsg: 'Už si spustil voľby, čaká sa na ostatných administrátorov'})
+                    this.setState({dimmedMsg: 'Už si spustil navrhove kolo, čaká sa na ostatných administrátorov'})
                     {this.handleShow()}
                 }
         } catch (e) {
@@ -87,9 +87,11 @@ class CardAdminProposal extends Component{
             throw e.message
         }			
     }
+
     finishProposal = async (event) => {
         this.setState({ loading: true});
         let accounts
+        var finish = parseInt(this.props.electionInfoEth['numOfAdminFinishProposal'])
         try {      
                 this.loadVotes()  
                 const election = Election(this.props.address['address']);
@@ -101,20 +103,18 @@ class CardAdminProposal extends Component{
                         })
                     this.setState({dimmedMsg: 'Výborne, ukončil si navrhove kolo'})
                     {this.handleShow()}  
-                    Router.pushRoute(`/elections/${accounts[0]}/administrationElections/`) 
+                    finish = finish + 1
                 } else{
-                    this.setState({dimmedMsg: 'Už si ukončil voľby, čaká sa na ostatných administrátorov'})
+                    this.setState({dimmedMsg: 'Už si ukončil navrhove kolo, čaká sa na ostatných administrátorov'})
                     {this.handleShow()}
                 }
         } catch (e) {
             console.log(e.message);
         }
         
-        const finish = parseInt(this.props.electionInfoEth['numOfAdminFinish']) + 1
-
         if(this.props.electionInfoEth['numOfAdmins'] == finish.toString()){
             this.proposalFinished()
-            Router.pushRoute(`/elections/${accounts[0]}/administrationElections/`)  
+            this.setState({dimmedMsg: 'Výborne, ukončil si navrhove kolo. Si posledny administrator. Navrhove kolo je celkovo ukoncene.'})
         }
         this.setState({ loading: false});
     }

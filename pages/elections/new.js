@@ -284,7 +284,7 @@ class ElectionNew extends React.Component {
 			this.setState({msg: 'Ziskavam informacie o ulozenych volbach'})
 			await this.getLastElection();
 			this.setState({msg: 'Ukladam administratorov na blockchain'})
-			alert('Nezabudni potvrdit v MetaMask');
+			alert('Ukladam administratorov na blockchain, nezabudni potvrdit v MetaMask');
 			await this.createAdministrators()
 			this.setState({msg: 'Ukladam volby do databazy'})
 			await this.createElectionDB()

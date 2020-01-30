@@ -4,7 +4,7 @@ import factory from '../../../ethereum/factory';
 import Election from '../../../ethereum/election'
 import CardFactory from '../../../components/CardFactory'
 import CardFactoryProposal from '../../../components/CardFactoryProposal'
-import {Button, Icon } from "semantic-ui-react";
+import {Button, Icon, Message } from "semantic-ui-react";
 import { Router } from '../../../routes';
 import axios from 'axios'
 import {getJwtAdministration} from '../../../helper/jwtAdministration'
@@ -13,7 +13,7 @@ const {constants} = require('../../../helper/constants').default;
 
 class FactoryAdministration extends Component{
 
-    async componentWillMount(){
+    async componentDidMount(){
         const jwt = await getJwtAdministration()
         if(jwt){
             await axios.post(constants.ADDRESS +  '/authenticateFactory', 
@@ -34,24 +34,6 @@ class FactoryAdministration extends Component{
 	}
     
 	static async getInitialProps(props){
-
-        if (typeof window !== 'undefined') {
-            const jwt = getJwtAdministration()
-            if(jwt){
-                await axios.post(constants.ADDRESS +  '/authenticateFactory', 
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'token': jwt
-                    },
-                }).then( e => {
-                    
-                }).catch(error => {
-                    console.log("Neulozeny token")
-                    Router.pushRoute(`/elections/administration/login/2`);
-                })
-        }
-    }
 
 		const elections = await factory.methods.getDeployedElections().call();
         const administratorAddress = props.query.adminAddress
@@ -99,21 +81,25 @@ class FactoryAdministration extends Component{
 	}
 
      renderElections(){
-		return this.props.addressesInfo.map((address, index) => {
-            if((this.props.electionInfo[index]['proposalIsRunning'] == 0) && (address != undefined) && (address['isCreated'] == 'created_no_keys' || address['isCreated'] == 'finished_no_uploaded' || address['isCreated'] == 'created_with_keys')){
-                return <CardFactory
-                    key={index}
-                    id={index}
-                    electionInfoEth={this.props.electionInfo[index]}
-                    address={address}/>;
-		} else if((this.props.electionInfo[index]['proposalIsRunning'] == 1) && (address != undefined) && (address['isCreated'] == 'created_no_keys' || address['isCreated'] == 'finished_proposal_no_uploaded' || address['isCreated'] == 'created_proposal_with_keys') ){
-            return <CardFactoryProposal
-                    key={index}
-                    id={index}
-                    electionInfoEth={this.props.electionInfo[index]}
-                    address={address}/>;
-        }})
-	};
+         try{
+            return this.props.addressesInfo.map((address, index) => {
+                if((this.props.electionInfo[index]['proposalIsRunning'] == 0) && (address != undefined) && (address['isCreated'] == 'created_no_keys' || address['isCreated'] == 'finished_no_uploaded' || address['isCreated'] == 'created_with_keys')){
+                    return <CardFactory
+                        key={index}
+                        id={index}
+                        electionInfoEth={this.props.electionInfo[index]}
+                        address={address}/>;
+            } else if((this.props.electionInfo[index]['proposalIsRunning'] == 1) && (address != undefined) && (address['isCreated'] == 'created_no_keys' || address['isCreated'] == 'finished_proposal_no_uploaded' || address['isCreated'] == 'created_proposal_with_keys') ){
+                return <CardFactoryProposal
+                        key={index}
+                        id={index}
+                        electionInfoEth={this.props.electionInfo[index]}
+                        address={address}/>;
+            }})
+        } catch(e){
+            Router.pushRoute(`/elections/administration/login/2`);
+        }
+    }
 
 	render(){
 		return( 

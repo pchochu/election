@@ -126,6 +126,7 @@ class CastVoteProposal extends Component{
 			alert('Vyborne, zahlasoval si a stiahol sa ti privatny kluc')
 
       }catch (e){
+		console.log(e.message)
 		this.setState({errorMessage: 'Problem s hlasovanim'})
 	  }
 	  	

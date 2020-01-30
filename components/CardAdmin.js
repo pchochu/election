@@ -90,6 +90,7 @@ class CardAdmin extends Component{
     finishElection = async (event) => {
         this.setState({ loading: true});
         let accounts
+        var finish = parseInt(this.props.electionInfoEth['numOfAdminFinish'])
         try {      
                 this.loadVotes()  
                 const election = Election(this.props.address['address']);
@@ -100,8 +101,8 @@ class CardAdmin extends Component{
                             from: accounts[0]
                         })
                     this.setState({dimmedMsg: 'Výborne, ukončil si voľby'})
-                    {this.handleShow()}  
-                    Router.pushRoute(`/elections/${accounts[0]}/administrationElections/`) 
+                    {this.handleShow()}
+                    finish = finish + 1
                 } else{
                     this.setState({dimmedMsg: 'Už si ukončil voľby, čaká sa na ostatných administrátorov'})
                     {this.handleShow()}
@@ -110,11 +111,9 @@ class CardAdmin extends Component{
             console.log(e.message);
         }
 
-        const finish = parseInt(this.props.electionInfoEth['numOfAdminFinish']) + 1
-
         if(this.props.electionInfoEth['numOfAdmins'] == finish.toString()){
             this.electionFinished()
-            Router.pushRoute(`/elections/${accounts[0]}/administrationElections/`)  
+            this.setState({dimmedMsg: 'Výborne, ukončil si voľby. Si posledny administrator. Volby su celkovo ukoncene.'})
         }
         this.setState({ loading: false});
     }

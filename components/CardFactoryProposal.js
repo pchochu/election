@@ -23,7 +23,7 @@ class CardFactoryProposal extends Component{
                         </Button.Content>
                     </Button> 
             } else{
-                return <Message compact>Voľby boli ukončené!</Message>
+                return <Message compact>Navrhove kolo bolo ukončené!</Message>
             }
         } else if(this.props.address['isCreated'] == 'created_proposal_with_keys'){
             return   <Message info>
