@@ -7,14 +7,23 @@ import CardClosed from '../components/CardClosed'
 import Layout from '../components/Layout';
 import { Message } from 'semantic-ui-react'
 const {constants} = require('../helper/constants').default;
+import axios from 'axios'
 
 class ElectionIndex extends Component {
-
+	
 	static async getInitialProps() {
-
 
 		const elections = await factory.methods.getDeployedElections().call();
 		const electionInfo = await Promise.all(elections.map(async (address) => {
+			const v = await axios.get(constants.ADDRESS + '/electionVisibility',
+			{ 
+				params: {
+					election_address:address
+				}
+			});
+
+			const isV = v.data[0].is_visible
+
 			const election = Election(address)
 			const approvalsToStart = await election.methods.approvalsToStartCount().call()
 			const approvalsToFinish = await election.methods.approvalsToFinishCount().call()
@@ -37,6 +46,7 @@ class ElectionIndex extends Component {
 			
 			const summary = await election.methods.getSummary().call();
 			return {
+				isVisible: isV,
 				name:summary[3], 
 				numStart:approvalsToStart, 
 				numAdmin:numOfAdmins, 
@@ -55,7 +65,7 @@ class ElectionIndex extends Component {
 
 	renderFinishedEelections(){
 		let elections = this.props.elections.map((address, index) => {
-			if(address != undefined && this.props.electionInfo[index]['winnerId'] > 0){
+			if(address != undefined && this.props.electionInfo[index]['winnerId'] > 0 && (this.props.electionInfo[index]['isVisible']) != 0){
 				return <CardClosed 
 					key={index}
 					id={index}
@@ -66,7 +76,7 @@ class ElectionIndex extends Component {
 
 			var nothingToShow = true
 			for (var i = 0; i < elections.length; i++) { 
-				if(typeof elections[i] !== 'undefined'){
+				if((typeof elections[i] !== 'undefined') &&  (this.props.electionInfo[i]['isVisible'] != 0)){
 					nothingToShow = false
 				}
 			}
@@ -85,18 +95,19 @@ class ElectionIndex extends Component {
 				 if (address != undefined && 
 					this.props.electionInfo[index]['winnerId'] == 0 &&
 					(this.props.electionInfo[index]['numStart'] == this.props.electionInfo[index]['numAdmin']) &&
-					(this.props.electionInfo[index]['numStart'] != this.props.electionInfo[index]['numFinish'])) {
+					(this.props.electionInfo[index]['numStart'] != this.props.electionInfo[index]['numFinish']) &&
+					(this.props.electionInfo[index]['isVisible']) != 0) {
 					return <CardUser
 						key={index}
 						id={index}
 						name={this.props.electionInfo[index]['name']}
 						address={address} />;
-				} 
-			})
+					} 
+				})
 
 			var nothingToShow = true
 			for (var i = 0; i < elections.length; i++) { 
-				if(typeof elections[i] !== 'undefined'){
+				if((typeof elections[i] !== 'undefined') &&  (this.props.electionInfo[i]['isVisible'] != 0)){
 					nothingToShow = false
 				}
 			}
@@ -117,7 +128,8 @@ class ElectionIndex extends Component {
 			 if (address != undefined && 
 				this.props.electionInfo[index]['proposalIsRunning'] == 1 &&
 				(this.props.electionInfo[index]['numOfAdminStartProposal'] == this.props.electionInfo[index]['numAdmin']) &&
-				(this.props.electionInfo[index]['numOfAdminStartProposal'] != this.props.electionInfo[index]['numOfAdminFinishProposal'])) {
+				(this.props.electionInfo[index]['numOfAdminStartProposal'] != this.props.electionInfo[index]['numOfAdminFinishProposal'])&&
+				(this.props.electionInfo[index]['isVisible']) != 0) {
 				return <CardUserProposal
 					key={index}
 					id={index}
@@ -128,7 +140,7 @@ class ElectionIndex extends Component {
 
 		var nothingToShow = true
 		for (var i = 0; i < elections.length; i++) { 
-			if(typeof elections[i] !== 'undefined'){
+			if((typeof elections[i] !== 'undefined') && (this.props.electionInfo[i]['isVisible'] != 0)){
 				nothingToShow = false
 			}
 		}

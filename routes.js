@@ -2,6 +2,7 @@ const routes = require('next-routes')();
 routes
   .add('/elections/new', '/elections/new')
   .add('/elections/:address', '/elections/show')
+  .add('/elections/:address/showResults/', '/elections/results')
   .add('/elections/:address/crypto/genKeys', 'elections/crypto/genKeys')
   .add('/elections/:address/crypto/submitResult/:account', 'elections/crypto/submitResult')
   .add('/elections/:address/crypto/submitResultProposal/:account', 'elections/crypto/submitResultProposal')

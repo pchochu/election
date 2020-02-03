@@ -60,6 +60,7 @@ contract Election{
     uint public proposalIsSet;
     uint public proposalIsRunning;
     string public proposal_result;
+    string public election_result;
     
     modifier restricted(){
         require(administrators[msg.sender]);
@@ -99,12 +100,14 @@ contract Election{
         RSA_pub_key = RSAPubKey;
     }
     
-    function setWinner(uint id, uint numOfVotes) public{
+    function setWinner(uint id, uint numOfVotes, string resultOfElection) public{
+        require(keccak256(proposal_result) == keccak256(''));
         require(id_winner == 0);
         require(administratorsCount == approvalsToFinishCount);
         require(msg.sender == manager);
         id_winner = id;
         winner_num_of_votes = numOfVotes;
+        election_result = resultOfElection;
     }
 
     function setResultOfProposal(string resultOfProposal) public{

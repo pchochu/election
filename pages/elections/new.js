@@ -88,7 +88,7 @@ class ElectionNew extends React.Component {
 						from: accounts[0]
 					});
 			} catch (e) {
-				console.log(e.message)
+				throw new Error('Problem pri ukladani volieb na Ethereum');
 			}
 		} else {
 			this.setState({ errorMessage: 'Adresa člana dozornej rady nie je ethereova' })
@@ -112,7 +112,7 @@ class ElectionNew extends React.Component {
 			address: this.state.address,
 			numberOfAdministrators: numberOfAdmins
 		}).catch(function (e) {
-			console.log(e.message)
+			throw new Error('Problem pri ukladani volieb do DB');
 		});
 	};
 
@@ -154,13 +154,13 @@ class ElectionNew extends React.Component {
 					this.setState({ errorMessage: 'Volby neboli uspesne zalozene. Nevygenerovali sa kluce' })
 					this.setState({RSAPubKey: 'Nepodarilo sa vygenerovat verejny kluc'});
 					this.setState({RSAPrivKey: 'Nepodarilo sa vygenerovat privatny kluc'});
-					console.log(e.message)
+					throw new Error('Nepodarilo sa ulozit kluce na Ethereum');
 				} 
 			}	
 		} catch (e) {
 			this.setState({RSAPubKey: 'Nepodarilo sa vygenerovat verejny kluc'});
 			this.setState({RSAPrivKey: 'Nepodarilo sa vygenerovat privatny kluc'});
-			console.log(e.message)
+			throw new Error('Nepodarilo sa vygenerovat kluc');
 		}
 	}	
 
@@ -196,12 +196,15 @@ class ElectionNew extends React.Component {
 	}
 
 	async createAdministrator(election, address, accounts) {
-
+		try{
 		await election.methods
 			.createAdministrator(address)
 			.send({
 				from: accounts[0]
 			})
+		}catch (e){
+			throw new Error('Nepodarilo sa ulozit administratora na Ethereum');
+		}
 	}
 
 	createAdministrators = async () => {

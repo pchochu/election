@@ -23,7 +23,8 @@ CREATE TABLE election (
 			description text,
 			election_address text,
 			RSA_pub_key text,
-			is_created text
+			is_created text,
+			is_visible text
 			);
 
 

@@ -21,6 +21,17 @@ class CardFinished extends Component{
                     </Message.List>
                 </Message>  
                 </Card.Content>
+                <Card.Content extra>
+                    <Button animated onClick={ () =>{
+                            event.preventDefault();
+                            Router.pushRoute(`/elections/${this.props.address}/showResults/`) 
+                        }}>
+                    <Button.Content visible>Kompletné výsledky</Button.Content>
+                    <Button.Content hidden>
+                        <Icon name='birthday cake' />
+                    </Button.Content>
+                    </Button>
+                </Card.Content>
                 </Card>
             </Card.Group>
         );

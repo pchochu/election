@@ -14,7 +14,8 @@ class SubmitResults extends Component{
 		results: '',
 		msg: [],
 		errorMessage: '',
-		token: ''
+		token: '',
+		jsonResult: ''
 	};
 
 	async componentDidMount(){
@@ -58,7 +59,7 @@ class SubmitResults extends Component{
 			this.setState({loading:true})
 
 			await election.methods
-				.setWinner(this.state.results[0]['candidate_contract_id'], this.state.results[0]['numberOfVotes'])
+				.setWinner(this.state.results[0]['candidate_contract_id'], this.state.results[0]['numberOfVotes'], this.state.jsonResult)
 				.send({
 					from: this.props.account
 				})
@@ -72,6 +73,7 @@ class SubmitResults extends Component{
 			this.setState({loading:false})
 		}
 	}
+
 	onSubmit = async event => {
 		event.preventDefault();
 		this.setState({loading:true, errorMessage: ''});
@@ -103,11 +105,20 @@ class SubmitResults extends Component{
 		
 		this.setState({results: getResults.data})
 
+		var dictionary = {}
+
 		let msg = this.state.results.map((result, index) => {
+
 			let winner = result['first_name'] + ' ' + result['last_name']
 			let numberOfVotesCandidate = (result['numberOfVotes'] === undefined)?0:result['numberOfVotes']
+			dictionary[winner] = numberOfVotesCandidate
 			return winner + ' ziskal ' + numberOfVotesCandidate + ' hlasov '
 		})
+
+		var myJsonString = JSON.stringify(dictionary);
+		var obj = JSON.stringify(myJsonString)
+
+		this.setState({jsonResult: obj})
 
 		this.setState({msg:msg})
 		this.setState({loading:false});

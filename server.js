@@ -106,10 +106,14 @@ app.prepare().then(() => {
     try{
       await Promise.all(array[0].map(async (voter) => {
         var admin = '0'
-        voter.includes(':admin') ? admin = '1': admin = '0'
-        voter.includes(':factory') ? admin = '2': admin = '0'
-        voter = voter.replace(':admin', '')
-        voter = voter.replace(':factory', '')
+        if(voter.includes(':admin')){
+          admin = '1'
+          voter = voter.replace(':admin', '')
+        } else if(voter.includes(':factory')){
+          admin = '2'
+          voter = voter.replace(':factory', '')
+        }
+        
         await queries.newVoter(
           {
             address_election:req.query.address,
@@ -181,6 +185,23 @@ app.prepare().then(() => {
       return res.sendStatus(500);
     }
   })
+
+  httpApp.put('/hideElection', async(req, res) => {
+    try {
+      console.log(req.body.address)
+      const response = await queries.hideElection(
+        {
+          address: req.body.address,
+        });
+
+      return res.send(response)
+    } catch (error) {
+      console.log('Error hideElection', error);
+      return res.sendStatus(500);
+    }
+  })
+
+  
   
   httpApp.put('/setElectionAsFinished', verifyAdmin, async(req, res) => {
     try {
@@ -217,6 +238,18 @@ app.prepare().then(() => {
       return res.send(candidates)
     } catch (error) {
       console.log('Error fetch candidates', error);
+      return res.sendStatus(500);
+    }
+  })
+
+  httpApp.get('/electionVisibility', async(req, res) => {
+    try {
+      const electionVisibility = await queries.getElectionVisibility({
+        address:req.query.election_address
+      });
+      return res.send(electionVisibility)
+    } catch (error) {
+      console.log('Error fetch election visibility', error);
       return res.sendStatus(500);
     }
   })
@@ -259,6 +292,8 @@ app.prepare().then(() => {
         });
       }))
 
+      console.log(votesDecrypted)
+
        var counts = {};
 
        for (var i = 0; i < votesDecrypted.length; i++) {
@@ -266,11 +301,15 @@ app.prepare().then(() => {
          counts[num] = counts[num] ? counts[num] + 1 : 1;
        }
 
+      console.log(counts)
+
       if(candidates[0] != undefined){
         candidates.map((candidate, index) => {
           candidate.numberOfVotes = counts[index + 1]
         })
       }
+
+      console.log(candidates)
 
       return res.send(candidates)
     } catch (error) {
@@ -278,6 +317,7 @@ app.prepare().then(() => {
       return res.sendStatus(500);
     }
   })
+
 
   httpApp.get('/getResultProposal', async(req, res) => {
     try {

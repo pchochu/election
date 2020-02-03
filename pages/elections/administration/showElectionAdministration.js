@@ -18,7 +18,9 @@ class Administration extends Component{
 
     async componentWillMount(){
         const jwt = await getJwtAdministration()
+
         if(jwt){
+
             await axios.post(constants.ADDRESS +  '/authenticateAdmin', 
             {
                 headers: {
@@ -28,6 +30,7 @@ class Administration extends Component{
             }).then( e => {
                 this.setState({token:jwt})
             }).catch(error => {
+
                 console.log("Neulozeny token")
                 Router.pushRoute(`/elections/administration/login/1`);
             })
@@ -39,18 +42,21 @@ class Administration extends Component{
     
 	static async getInitialProps(props){
 
-		const elections = await factory.methods.getDeployedElections().call();
+        const elections = await factory.methods.getDeployedElections().call();
+
         const administratorAddress = props.query.adminAddress
 
 		const administratedAddresses =  await Promise.all(elections.map(async (address) => {
+
             const election = Election(address)
+ 
             const isAdmin = await election.methods.administrators(props.query.adminAddress).call()
 			if(isAdmin){
                 return address
             }
         }));
+
         const addressesInfo = await Promise.all(administratedAddresses.map(async (address) => {
-            
             const resp = await axios.get(constants.ADDRESS + '/getIsCreated',{ 
                 params: {
                     election_address:address
@@ -77,7 +83,6 @@ class Administration extends Component{
                     type: '1'
                 }
             });
-
             return {
                 isCreated: created, 
                 address: address, 
@@ -87,17 +92,19 @@ class Administration extends Component{
             }
         }))
 
-        let electionInfo
+        let electionInfo = null
         if(administratedAddresses[0] !== undefined){
             electionInfo =  await Promise.all(administratedAddresses.map(async (address) => {
-                const election = Election(address)
-                const approvalsToStart = await election.methods.approvalsToStartCount().call()
-                const approvalsToFinish = await election.methods.approvalsToFinishCount().call()
-                const approvalsToStartProposal = await election.methods.approvalsToStartProposalCount().call()
-                const approvalsToFinishProposal = await election.methods.approvalsToFinishProposalCount().call()
-                const propRunning = await election.methods.proposalIsRunning().call();
-                const propSet = await election.methods.proposalIsSet().call();
-                const summary = await election.methods.getSummary().call();
+                if(address !== undefined){
+                    const election = Election(address)
+                    const approvalsToStart = await election.methods.approvalsToStartCount().call()
+                    const approvalsToFinish = await election.methods.approvalsToFinishCount().call()
+                    const approvalsToStartProposal = await election.methods.approvalsToStartProposalCount().call()
+                    const approvalsToFinishProposal = await election.methods.approvalsToFinishProposalCount().call()
+                    const propRunning = await election.methods.proposalIsRunning().call();
+                    const propSet = await election.methods.proposalIsSet().call();
+                    const summary = await election.methods.getSummary().call();
+
                 return {
                     proposalIsRunning: propRunning, 
                     proposalIsSet: propSet, 
@@ -107,7 +114,8 @@ class Administration extends Component{
                     numOfAdminFinish: approvalsToFinish, 
                     numOfAdminStartProposal: approvalsToStartProposal, 
                     numOfAdminFinishProposal: approvalsToFinishProposal
-                }
+                }  
+            }
             }));
         } else{
             electionInfo = null

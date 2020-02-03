@@ -62,6 +62,21 @@ const getDescriptionOfElection = async(props) => {
 		}
 }
 
+const getElectionVisibility = async(props) => {
+	const pool = connection.getPool();
+	try{
+		var sql = "SELECT is_visible FROM election WHERE election_address = ?";
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
+
+		const res = await pool.query(sql)
+		await pool.end()
+		return res.rows;
+	} catch (error){
+		console.log('db error', error)
+		}
+}
+
 const getNonVotes = async(props) => {
 	const pool = connection.getPool();
 	try{
@@ -96,6 +111,21 @@ const getVotes = async(props) => {
 	const pool = connection.getPool();
 	try{
 		var sql = "SELECT id_candidate FROM vote WHERE id_election = ?;";
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
+
+		const res = await pool.query(sql)
+		await pool.end()
+		return res.rows;
+	} catch (error){
+		console.log('db error', error)
+		}
+}
+
+const getVotesCandidates = async(props) => {
+	const pool = connection.getPool();
+	try{
+		var sql = "SELECT id_decrypted_candidate FROM vote WHERE id_election = ?;";
 		var inserts = [props.address];
 		sql = mysql.format(sql, inserts);
 
@@ -307,6 +337,20 @@ const setElectionAsFinished= async(props) => {
 	}
 }
 
+const hideElection= async(props) => {
+	const pool = connection.getPool();
+	try{
+		sql = `UPDATE election SET is_visible = '0'
+				WHERE election_address = ?`
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
+		await pool.query(sql)
+		await pool.end()
+	} catch (error){
+		console.log('db error', error)
+	}
+}
+
 const setProposalAsFinished= async(props) => {
 	const pool = connection.getPool();
 	try{
@@ -465,7 +509,7 @@ const newElection = async(props) => {
 	const pool = connection.getPool();
 	try{
 
-		var sql = `INSERT INTO election (name, description, election_address, is_created) VALUES (?,?,?,'created_no_keys');`
+		var sql = `INSERT INTO election (name, description, election_address, is_created, is_visible) VALUES (?,?,?,'created_no_keys', '1');`
 		var inserts = [props.nameOfTheElection, props.descriptionOfElection, props.address];
 		sql = mysql.format(sql, inserts);
 
@@ -598,5 +642,7 @@ module.exports =
 	setFinishedUploadedProposal,
 	decryptVoteProposal,
 	getIsAdminUser,
-	getUserAuth
+	getUserAuth,
+	hideElection,
+	getElectionVisibility
 }

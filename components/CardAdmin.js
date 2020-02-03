@@ -9,7 +9,22 @@ const {constants} = require('../helper/constants').default;
 class CardAdmin extends Component{
     state = {
         loading: false,
-        dimmedMsg: ''
+        dimmedMsg: '',
+        isVisible: 0,
+        account: null
+    }
+
+    async componentDidMount(){
+        const isVisible = await axios.get(constants.ADDRESS + '/electionVisibility',
+        { 
+            params: {
+                election_address:this.props.address['address']
+            }
+        });
+        this.setState({isVisible: isVisible.data[0].is_visible})  
+
+        const accounts = await web3.eth.getAccounts()
+        this.setState({account: accounts[0]})
     }
 
     handleShow = () => this.setState({ active: true })
@@ -176,32 +191,41 @@ class CardAdmin extends Component{
             </Message.List>
       </Message>
     }
-    render(){
-        const { active } = this.state
 
-        return(
-            <div>
-                    <Card.Group>
-                        <Card style={{width:'500px'}}>
-                        <Card.Content>
-                            <Card.Header>{this.props.electionInfoEth['name']}</Card.Header>
-                            <Card.Description>{this.props.address['address']}</Card.Description>
-                        </Card.Content>
-                        <Card.Content extra>
-                            {this.addCandidateButton()}
-                            {this.showButtons()}
-                            <Dimmer.Dimmable as={Segment} dimmed={active}>
-                                {this.showVotes()}
-                                <Dimmer active={active} onClickOutside={this.handleHide}>
-                                    <Header as='h2' icon inverted>
-                                     {this.state.dimmedMsg}
-                                    </Header>
-                                </Dimmer>
-                            </Dimmer.Dimmable>
-                        </Card.Content>
-                        </Card>
-                    </Card.Group>
+    ren(){
+        const { active } = this.state
+        
+        if(this.state.isVisible != 0){
+            return <div>
+                <Card.Group>
+                    <Card style={{width:'500px'}}>
+                    <Card.Content>
+                        <Card.Header>{this.props.electionInfoEth['name']}</Card.Header>
+                        <Card.Description>{this.props.address['address']}</Card.Description>
+                    </Card.Content>
+                    <Card.Content extra>
+                        {this.addCandidateButton()}
+                        {this.showButtons()}
+                        <Dimmer.Dimmable as={Segment} dimmed={active}>
+                            {this.showVotes()}
+                            <Dimmer active={active} onClickOutside={this.handleHide}>
+                                <Header as='h2' icon inverted>
+                                {this.state.dimmedMsg}
+                                </Header>
+                            </Dimmer>
+                        </Dimmer.Dimmable>
+                    </Card.Content>
+                    </Card>
+                </Card.Group>
             </div>
+        } else{
+            return null
+        }    
+    }
+
+    render(){
+        return(
+            this.ren()
         );
     };
 }
