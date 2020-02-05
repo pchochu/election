@@ -101,7 +101,7 @@ contract Election{
     }
     
     function setWinner(uint id, uint numOfVotes, string resultOfElection) public{
-        require(keccak256(proposal_result) == keccak256(''));
+        require(keccak256(election_result) == keccak256(''));
         require(id_winner == 0);
         require(administratorsCount == approvalsToFinishCount);
         require(msg.sender == manager);

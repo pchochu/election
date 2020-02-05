@@ -166,6 +166,21 @@ const getVotesResults = async(props) => {
 		}
 }
 
+const getVotesResultsProposal = async(props) => {
+	const pool = connection.getPool();
+	try{
+		var sql = "SELECT * FROM voteProposal WHERE id_election = ?;";
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
+
+		const res = await pool.query(sql)
+		await pool.end()
+		return res.rows;
+	} catch (error){
+		console.log('db error', error)
+		}
+}
+
 const getIsCreated = async(props) => {
 	const pool = connection.getPool();
 	try{
@@ -199,7 +214,7 @@ const getNumOfVotes = async(props) => {
 const updateNonVotesToPending = async(props) => {
 	const pool = connection.getPool();
 	try{
-		var sql = "UPDATE vote SET stored_on_eth = 'pending' WHERE id_election = ? AND stored_on_eth = '0;";
+		var sql = "UPDATE vote SET stored_on_eth = 'pending' WHERE id_election = ? AND stored_on_eth = '0';";
 		var inserts = [props.address];
 		sql = mysql.format(sql, inserts);
 
@@ -381,6 +396,21 @@ const setFinishedUploadedProposal= async(props) => {
 	}
 }
 
+const setElectionNotVisible = async(props) => {
+	const pool = connection.getPool();
+	try{
+		sql = `UPDATE election SET is_visible = '0'
+				WHERE election_address = ?`
+
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
+		await pool.query(sql)
+		await pool.end()
+	} catch (error){
+		console.log('db error', error)
+	}
+}
+
 
 const getUserIsListedInElection = async(props) => {
 	const pool = connection.getPool();
@@ -442,6 +472,21 @@ const getAllUserVote = async(props) => {
 		}
 }
 
+const getAllUserVoteProposal = async(props) => {
+	const pool = connection.getPool();
+	try{
+		var sql = `SELECT id_candidate FROM voteProposal WHERE id_election = ?;`
+
+		var inserts = [props.address];
+		sql = mysql.format(sql, inserts);
+		const res = await pool.query(sql)
+		await pool.end()
+		return res.rows;
+	} catch (error){
+		console.log('db error', error)
+		}
+}
+
 const getUserVoteCanId = async(props) => {
 	const pool = connection.getPool();
 	try{
@@ -461,6 +506,21 @@ const votedInElection = async(props) => {
 	const pool = connection.getPool();
 	try{
 		var sql = `SELECT * FROM voter WHERE id_election = ? AND id_voter = ? ;`
+
+		var inserts = [props.address, props.id_voter];
+		sql = mysql.format(sql, inserts);
+		const res = await pool.query(sql)
+		await pool.end()
+		return res.rows;
+	} catch (error){
+		console.log('db error', error)
+		}
+}
+
+const votedInProposal = async(props) => {
+	const pool = connection.getPool();
+	try{
+		var sql = `SELECT * FROM voterproposal WHERE id_election = ? AND id_voter = ? ;`
 
 		var inserts = [props.address, props.id_voter];
 		sql = mysql.format(sql, inserts);
@@ -644,5 +704,9 @@ module.exports =
 	getIsAdminUser,
 	getUserAuth,
 	hideElection,
-	getElectionVisibility
+	getElectionVisibility,
+	votedInProposal,
+	getVotesResultsProposal,
+	getAllUserVoteProposal,
+	setElectionNotVisible
 }

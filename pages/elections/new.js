@@ -133,11 +133,13 @@ class ElectionNew extends React.Component {
 						.send({
 							from: accounts[0]
 						}).then(function(result){             
-							alert('Volby boli uspesne zalozene. Nezabudni stiahnut kluc!')}).catch(function(e){
+							
+						}).catch(function(e){
 								alert('Volby neboli uspesne zalozene. Nevygenerovali sa kluce') 
 								this.setState({ errorMessage: 'Volby neboli uspesne zalozene. Nevygenerovali sa kluce' })
 								this.setState({RSAPubKey: 'Nepodarilo sa vygenerovat verejny kluc'});
-								this.setState({RSAPrivKey: 'Nepodarilo sa vygenerovat privatny kluc'});                                         
+								this.setState({RSAPrivKey: 'Nepodarilo sa vygenerovat privatny kluc'});  
+								throw new Error('Nepodarilo sa ulozit kluce na Ethereum');                                       
 					  		})                         
 					
 							  
@@ -281,6 +283,7 @@ class ElectionNew extends React.Component {
 	
 
 		try {
+
 			this.setState({msg: 'Ukladam volby na blockchain. Nezabudni potvrdit v MetaMask'})
 			alert('Ukladam volby na blockchain. Nezabudni potvrdit v MetaMask');
 			await this.createElectionETH();
@@ -299,9 +302,22 @@ class ElectionNew extends React.Component {
 			+ 'Nájdeš ho nižšie.'})
 			this.setState({ loading: false });
 			await this.onClickHandler();
+			alert('Volby boli uspesne zalozene. Nezabudni stiahnut kluc!')
+			
 
 		} catch (e){
-			this.setState({ errorMessage: e.message });
+			try{
+			axios.put(constants.ADDRESS + '/setElectionNotVisible', {
+				headers: {
+					'Content-Type': 'application/json',
+					'token': this.state.token
+				},
+				address: this.state.address,
+			});
+		} catch (e) {
+		} 
+			this.setState({msg: ''})
+			this.setState({ errorMessage: 'Volby neboli uspesne zalozene ' + e.message });
 			this.setState({ loading: false });
 		}
 
@@ -326,7 +342,10 @@ class ElectionNew extends React.Component {
 			params:{
 				address: this.state.address
 			}
-		})
+		}
+		).catch(
+			error => {throw new Error('Problem s formatom volicov.');}
+		);
 	}
 
 	toggle = () => {
@@ -390,16 +409,6 @@ class ElectionNew extends React.Component {
 								value={this.state.description}
 								onChange={event => this.setState({ descriptionOfElection: event.target.value })} />
 						</Form.Field>
-
-						
-
-						{/* <Form.Field required>
-							<label>Adresa člena dozornej rady</label>
-							<Input
-								value={this.state.address1}
-								onChange={event => this.setState({ address1: event.target.value })}
-							/>
-						</Form.Field> */}
 
 						<Form.Field>
 						<div>

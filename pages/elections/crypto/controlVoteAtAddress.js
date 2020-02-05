@@ -12,13 +12,16 @@ class ElectionNew extends Component {
 		address: '',
 		name:'',
 		key:'',
+		// keyProposal: '',
 		errorMessage: '',
 		msg: '',
+		// msgProposal: ''
 	};
 
 	static async getInitialProps(props) {
-
+		
 		const address = props.query.address
+		const election = Election(address);
 		
 		let isAddress
 		try {
@@ -26,6 +29,8 @@ class ElectionNew extends Component {
 		  } catch(e) { 
 			console.error('invalid ethereum address', e.message) 
 		  }
+
+		// const isProposal = await election.methods.proposalIsSet().call()
 
 	 return {address, isAddress}
 	}
@@ -43,6 +48,18 @@ class ElectionNew extends Component {
 		return vote
 	}
 
+	// getVotedProposal = async () => {
+	// 	const vote = await axios.get(constants.ADDRESS + '/votedInProposal',
+	// 	{ 
+	// 		params: {
+	// 			election_address:this.props.address,
+	// 			id_voter:this.state.name,
+	// 		}
+	// 	});
+
+	// 	return vote
+	// }
+
 	getCrypto = async () => {
 		const vote = await axios.get(constants.ADDRESS + '/getUserVote',
 		{ 
@@ -54,6 +71,19 @@ class ElectionNew extends Component {
 
 		return vote
 	}
+
+	// getCryptoProposal = async () => {
+	// 	const vote = await axios.get(constants.ADDRESS + '/getUserVoteProposal',
+	// 	{ 
+	// 		params: {
+	// 			election_address:this.props.address,
+	// 			key:this.state.keyProposal,
+	// 		}
+	// 	});
+
+	// 	return vote
+	// }
+
     onSubmit = async (event) => {
 
 		try{
@@ -76,8 +106,19 @@ class ElectionNew extends Component {
 				this.setState({errorMessage: 'Nevyplnil si RSA kluc'})
 				return
 			}
+
+			// if(this.props.isProposal == 1){
+			// 	if(this.state.keyProposal == ''){
+			// 		this.setState({errorMessage: 'Nevyplnil si RSA kluc z navrhoveho kola'})
+			// 		return
+			// 	}
+			// }
 			
 			const voted = await this.getVoted()
+
+			// if(this.props.isProposal == 1){
+			// 	const votedProposal = await this.getVotedProposal()
+			// }
 
 			if(voted.data[0] === undefined){
 				this.setState({errorMessage: 'Hlas s daným loginom sa nenachádza v DB'})
@@ -86,16 +127,34 @@ class ElectionNew extends Component {
 				this.setState({msg: 'Hlas sa nachádza v DB '})
 			}
 
+			// if(this.props.isProposal == 1){
+			// 	if(votedProposal.data[0] === undefined){
+			// 		this.setState({errorMessage: 'Hlas s daným loginom sa nenachádza v DB (navrhove kolo)'})
+			// 		return
+			// 	} else{
+			// 		this.setState({msg: 'Hlas sa nachádza v DB (navrhove kolo)'})
+			// 	}
+			// }
+
 			const crypto = await this.getCrypto()
-			
+			// const cryptoProposal = await this.getCryptoProposal()
+
 			if(crypto.data != this.state.name){
 				this.setState({errorMessage: 'Tvoj hlas sa nepodarilo desifrovat pomocou zadaneho kluca a mena'})
 				return
 			} else {
 				this.setState({msg: "Tvoj hlas je spravne zasifrovany v DB"})
 			}
-			
 
+			// if(this.props.isProposal == 1){
+			// 	if(cryptoProposal.data != this.state.name){
+			// 		this.setState({errorMessage: 'Tvoj hlas sa nepodarilo desifrovat pomocou zadaneho kluca a mena (navrhove kolo)'})
+			// 		return
+			// 	} else {
+			// 		this.setState({msg: "Tvoj hlas je spravne zasifrovany v DB (navrhove kolo)"})
+			// 	}
+			// }
+			
 			const recreatedRoot = await axios.post(constants.ADDRESS + '/verifyBchTreeEthTree',
 			{ 
 					election_address:this.props.address
@@ -110,10 +169,47 @@ class ElectionNew extends Component {
 				this.setState({msg: "Hlas je uložený v DB, na BCH, Merkle Rooty DB, ETH, znova vytvoreny strom sa zhoduju"})
 			}
 
+			// if(this.props.isProposal == 1){
+			// 	const recreatedRootProposal = await axios.post(constants.ADDRESS + '/verifyBchTreeEthTreeProposal',
+			// 	{ 
+			// 			election_address:this.props.address
+			// 	});
+
+				
+			// 	const recreatedRootEthCompProposal = await election.methods.hashes("0x" + recreatedRootProposal.data).call();
+
+			// 	if(!recreatedRootEthCompProposal){
+			// 		this.setState({errorMessage: 'Znovu vytvoreny strom nesuhlasi so stromom na ETH (navrhove kolo)'})
+			// 		return
+			// 	} else{
+			// 		this.setState({msg: "Hlas je uložený v DB, na BCH, Merkle Rooty DB, ETH, znova vytvoreny strom sa zhoduju (navrhove kolo)"})
+			// 	}
+			// }
+
 	} catch (error) {
 		this.setState({errorMessage: error.message})
 	}
 	}
+
+	// renProposal(){
+	// 	if(this.props.isProposal == 1){
+	// 	return <Form.Field>
+	// 						<label>Volebný Klúč Návrhového Kola</label>
+	// 						<TextArea
+	// 							style={{ minHeight: 300 }}
+	// 							value={this.state.keyProposal}
+	// 							onChange={event => this.setState({ keyProposal: event.target.value })} />
+	// 					</Form.Field>
+	// 	}
+	// }
+
+	// renProposalMsg(){if(this.props.isProposal == 1){
+	// 	<Message success
+	// 							header='Výborne!'
+	// 							content={this.state.msgProposal}
+	// 						/>
+	// }
+	// }
 	
 	render() {	
 		return (	
@@ -131,32 +227,19 @@ class ElectionNew extends Component {
 						</Form.Field>
 
 						<Form.Field>
-							<label>Klúč</label>
+							<label>Volebný Klúč</label>
 							<TextArea
 								style={{ minHeight: 300 }}
-								placeholder='-----BEGIN RSA PRIVATE KEY-----
-								MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
-								wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5
-								1s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQABAoGAFijko56+qGyN8M0RVyaRAXz++xTqHBLh
-								3tx4VgMtrQ+WEgCjhoTwo23KMBAuJGSYnRmoBZM3lMfTKevIkAidPExvYCdm5dYq3XToLkkLv5L2
-								pIIVOFMDG+KESnAFV7l2c+cnzRMW0+b6f8mR1CJzZuxVLL6Q02fvLi55/mbSYxECQQDeAw6fiIQX
-								GukBI4eMZZt4nscy2o12KyYner3VpoeE+Np2q+Z3pvAMd/aNzQ/W9WaI+NRfcxUJrmfPwIGm63il
-								AkEAxCL5HQb2bQr4ByorcMWm/hEP2MZzROV73yF41hPsRC9m66KrheO9HPTJuo3/9s5p+sqGxOlF
-								L0NDt4SkosjgGwJAFklyR1uZ/wPJjj611cdBcztlPdqoxssQGnh85BzCj/u3WqBpE2vjvyyvyI5k
-								X6zk7S0ljKtt2jny2+00VsBerQJBAJGC1Mg5Oydo5NwD6BiROrPxGo2bpTbu/fhrT8ebHkTz2epl
-								U9VQQSQzY1oZMVX8i1m5WUTLPz2yLJIBQVdXqhMCQBGoiuSoSjafUhV7i1cEGpb88h5NBYZzWXGZ
-								37sJ5QsW+sJyoNde3xH8vdXhzU7eT82D6X/scw9RZz+/6rCJ4p0=
-								-----END RSA PRIVATE KEY-----'
 								value={this.state.key}
 								onChange={event => this.setState({ key: event.target.value })} />
-						</Form.Field>
-
-					
+						</Form.Field>		
+	
 						<Message error header="Ojoj, niečo sa pokazilo!" content={this.state.errorMessage} />
 						<Message success
 								header='Výborne!'
 								content={this.state.msg}
 							/>
+						
 						<Button loading={this.state.loading} color={constants.COLOR}>Zkontroluj!</Button>
 					</Form>
 				</div>

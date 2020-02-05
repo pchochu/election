@@ -60,6 +60,17 @@ class CandidateNew extends Component{
 
 		try{
 
+			// let log = await axios.post(constants.ADDRESS + '/login',
+			// { 
+			// 		username:this.state.login,
+			// 		password: this.state.password,
+			// })
+
+			// if(log.data.response == 'notAuth'){
+			// 	this.setState({errorMessage: 'Nespavne prihlasovacie udaje'})
+			// 	return
+			// } 
+
 			let isAuth = await axios.post(constants.ADDRESS + '/authenticate',
 			{ 
 					username:this.state.login,
@@ -67,27 +78,6 @@ class CandidateNew extends Component{
 					address:this.props.address,
 					type:'0'
 			})
-
-			/*
-			if(isAuth.data.response == 'notAuth'){
-				this.setState({errorMessage: 'Nespavne prihlasovacie udaje'})
-				return
-			} */
-
-			// overovanie či je hlasujúci v zozname hlasujúcich pre dané voľby.
-			// neoverujem z dôvodu, že neviem, kto bude v testovacích voľbách hlasovať
-			// const isListed = await axios.get(constants.ADDRESS + '/getUserIsListedInElection',
-			// { 
-			// 	params: {
-			// 		election_address:this.props.address,
-			// 		id_voter:this.state.login
-			// 	}
-			// });
-
-			// if(isListed.data.length < 1){
-			// 	this.setState({ errorMessage: "Nenachadzas sa v zozname hlasujucich"})
-			// 	return
-			// }
 
 			const vote = await axios.get(constants.ADDRESS + '/didUserVote',
 			{ 

@@ -34,28 +34,36 @@ app.prepare().then(() => {
   httpApp.post('/authenticateFactory', verifyFactory, async(req,res) => {
     return res.status(200).send('overeny');
   });
+
+  httpApp.post('/login', async(req, res) => {
+    try{ 
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+        var client = ldap.createClient({
+        url: 'ldaps://chancer.mendelu.cz:636',
+        reconnect: true
+      });
+
+      let isAuthenticated = await client.bind("uid=" +req.body.username+ ", ou=People, dc=mendelu, dc=cz", req.body.password, (err, res2) => {
+        if (err) {
+          client.unbind();
+          res.send({response: 'notAuth'})
+        } else{
+          client.unbind();
+          res.send({response: 'Auth'})
+          }
+        }
+      ); 
+
+      client.unbind();
+    } catch (error) {
+      console.log('Err authenticate', error);
+      return res.sendStatus(500);
+    }
+  })
   
   httpApp.post('/authenticate', async(req, res) => {
    try{
-    // process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-
-    // var client = ldap.createClient({
-    //   url: 'ldaps://chancer.mendelu.cz:636',
-    //   reconnect: true
-    // });
-
-    // let isAuthenticated = await client.bind("uid=" +req.body.username+ ", ou=People, dc=mendelu, dc=cz", req.body.password, (err, res2) => {
-    //   if (err) {
-    //     abc = 'notAuth'
-    //     client.unbind();
-    //     res.send({response: 'notAuth'})
-    //   } else{
-    //     abc = 'Auth'
-    //     client.unbind();
-    //     res.send({response: 'Auth'})
-    //     }
-    //   }
-    //   ); 
 
       var token = ''
       const type = await queries.getUserAuth(
@@ -63,6 +71,7 @@ app.prepare().then(() => {
           id_voter: req.body.username,
           type: req.body.type
         });
+
 
         if(type !== undefined){
           if(req.body.type == 1 && type.length > 0){
@@ -73,11 +82,8 @@ app.prepare().then(() => {
             token = jwt.sign({_id:req.body.username, type:0}, 'isVoter', { expiresIn: 5 })
           }
       }
-
       res.header('auth-token', token).send(token);
-
-
-      // client.unbind();
+      
     } catch (error) {
       console.log('Err authenticate', error);
       return res.sendStatus(500);
@@ -101,9 +107,10 @@ app.prepare().then(() => {
 
   httpApp.post('/upload', upload.any(), async(req, res) => {
     let files = req.files;
-    let csv = files[0]['buffer'].toString('ASCII')
-    const array = convertCSVToArray(csv, {header:true, type:"object", separator:";"});
+    
     try{
+      let csv = files[0]['buffer'].toString('ASCII')
+      const array = convertCSVToArray(csv, {header:true, type:"object", separator:";"});
       await Promise.all(array[0].map(async (voter) => {
         var admin = '0'
         if(voter.includes(':admin')){
@@ -157,6 +164,19 @@ app.prepare().then(() => {
       return res.send(response)
     } catch (error) {
       console.log('Error addRSAPubKey', error);
+      return res.sendStatus(500);
+    }
+  })
+
+  httpApp.put('/setElectionNotVisible', verifyFactory, async(req, res) => {
+    try {
+      const response = await queries.setElectionNotVisible(
+        {
+          address: req.body.address,
+        });
+      return res.send(response)
+    } catch (error) {
+      console.log('Error setElectionNotVisible', error);
       return res.sendStatus(500);
     }
   })
@@ -292,8 +312,6 @@ app.prepare().then(() => {
         });
       }))
 
-      console.log(votesDecrypted)
-
        var counts = {};
 
        for (var i = 0; i < votesDecrypted.length; i++) {
@@ -301,16 +319,12 @@ app.prepare().then(() => {
          counts[num] = counts[num] ? counts[num] + 1 : 1;
        }
 
-      console.log(counts)
-
       if(candidates[0] != undefined){
         candidates.map((candidate, index) => {
           candidate.numberOfVotes = counts[index + 1]
         })
       }
-
-      console.log(candidates)
-
+      
       return res.send(candidates)
     } catch (error) {
       console.log('Error fetch getResult', error.message);
@@ -421,6 +435,36 @@ app.prepare().then(() => {
     }
   })
 
+    httpApp.get('/getUserVoteProposal', async(req, res) => {
+    try {
+      const vote = await queries.getVotesResultsProposal({
+        address:req.query.election_address,
+      });	
+
+      let key = new NodeRSA(({b: 512}));
+      try{
+        key.importKey(req.query.key, 'pkcs8-private-pem')
+      } catch (e) {
+        return res.send('Nepodarilo sa naimportovat spravne kluc. Je kluc spravny?')
+      }
+
+
+      let decrypted = ''
+      vote.forEach((v) => {
+        try{
+          decrypted = key.decrypt(v['id_voter'], 'utf8');
+        } catch (e) {
+          console.log(e.message)
+        }
+      })
+
+      return res.send(decrypted)
+    } catch (error) {
+      console.log('Error fetch getUserVoteProposal', error);
+      return res.sendStatus(500);
+    }
+  })
+
   httpApp.get('/didUserVote', async(req, res) => {
     try {
       const vote = await queries.didUserVote({
@@ -479,6 +523,20 @@ app.prepare().then(() => {
     }
   })
 
+    httpApp.get('/votedInProposal', async(req, res) => {
+    try {
+      const vote = await queries.votedInProposal({
+        address:req.query.election_address,
+        id_voter:req.query.id_voter 
+      });	
+
+      return res.send(vote)
+    } catch (error) {
+      console.log('Error fetch votedInProposal', error);
+      return res.sendStatus(500);
+    }
+  })
+
   httpApp.get('/getUserIsListedInElection', async(req, res) => {
     try {
       const vote = await queries.getUserIsListedInElection({
@@ -525,6 +583,24 @@ app.prepare().then(() => {
       return res.send(root)
     } catch (error) {
       console.log('Error fetch verifyBchTreeEthTree', error);
+      return res.sendStatus(500);
+    }
+  })
+
+    httpApp.post('/verifyBchTreeEthTreeProposal', async(req, res) => {
+    try {
+      const votes = await queries.getAllUserVoteProposal({
+        address:req.body.election_address,
+      });	
+  
+      var data = votes.map(x => x.id_candidate)
+      const leaves = data.map(x => SHA256(x))
+      const tree = new MerkleTree(leaves, SHA256)
+      const root = tree.getRoot().toString('hex')
+  
+      return res.send(root)
+    } catch (error) {
+      console.log('Error fetch verifyBchTreeEthTreeProposal', error);
       return res.sendStatus(500);
     }
   })

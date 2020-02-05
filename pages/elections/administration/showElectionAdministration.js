@@ -93,7 +93,14 @@ class Administration extends Component{
         }))
 
         let electionInfo = null
-        if(administratedAddresses[0] !== undefined){
+
+        var gotAddress = false
+        administratedAddresses.forEach(function(a) {
+            if(a !== undefined){
+                gotAddress = true
+            }
+        });
+        if(gotAddress){
             electionInfo =  await Promise.all(administratedAddresses.map(async (address) => {
                 if(address !== undefined){
                     const election = Election(address)

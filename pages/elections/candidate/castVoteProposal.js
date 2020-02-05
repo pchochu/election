@@ -52,6 +52,17 @@ class CastVoteProposal extends Component{
 
 		try{
 
+			let log = await axios.post(constants.ADDRESS + '/login',
+			{ 
+					username:this.state.login,
+					password: this.state.password,
+			})
+
+			if(log.data.response == 'notAuth'){
+				this.setState({errorMessage: 'Nespavne prihlasovacie udaje'})
+				return
+			} 
+
 			 let isAuth = await axios.post(constants.ADDRESS + '/authenticate',
 			{ 
 					username:this.state.login,
@@ -59,26 +70,6 @@ class CastVoteProposal extends Component{
 					address:this.props.address,
 					type:'0'
 			})
-			/*
-			if(isAuth.data.response == 'notAuth'){
-				this.setState({errorMessage: 'Nespavne prihlasovacie udaje'})
-				return
-			} */
-
-			// overovanie či je hlasujúci v zozname hlasujúcich pre dané voľby.
-			// neoverujem z dôvodu, že neviem, kto bude v testovacích voľbách hlasovať
-			// const isListed = await axios.get(constants.ADDRESS + '/getUserIsListedInElection',
-			// { 
-			// 	params: {
-			// 		election_address:this.props.address,
-			// 		id_voter:this.state.login
-			// 	}
-			// });
-
-			// if(isListed.data.length < 1){
-			// 	this.setState({ errorMessage: "Nenachadzas sa v zozname hlasujucich"})
-			// 	return
-			// }
 
 			const vote = await axios.get(constants.ADDRESS + '/didUserVoteProposal',
 			{ 
@@ -122,8 +113,9 @@ class CastVoteProposal extends Component{
 
 			this.setState({ key: response.data})
 
-			this.downloadTxtFile()
-			alert('Vyborne, zahlasoval si a stiahol sa ti privatny kluc')
+			// this.downloadTxtFile()
+			// alert('Vyborne, zahlasoval si a stiahol sa ti privatny kluc')
+			alert('Vyborne, zahlasoval si a tvoj hlas sa ulozil do databazy')
 
       }catch (e){
 		console.log(e.message)
@@ -170,12 +162,12 @@ class CastVoteProposal extends Component{
 						<Button color={constants.COLOR} >Odošli hlas</Button>	
 					</Form>
 
-					<Accordion style={{ marginTop: '50px', marginBottom: '50px' }}> 
+					{/* <Accordion style={{ marginTop: '50px', marginBottom: '50px' }}> 
 						<Label color={constants.COLOR} size={'medium'}>
                             Privátny RSA klúč
                         </Label> 
 						<Button color={constants.COLOR} onClick={this.downloadTxtFile }>Stiahni</Button>
-				</Accordion>
+				</Accordion> */}
 			</Layout>
 			);
 	}

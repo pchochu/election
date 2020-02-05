@@ -91,28 +91,43 @@ class ElectionIndex extends Component {
 			}
 	}
 	renderElections() {
-			let elections = this.props.elections.map((address, index) => {
+			var anythingToShow = false
+			let elections = this.props.elections.map(async (address, index) => {
 				 if (address != undefined && 
 					this.props.electionInfo[index]['winnerId'] == 0 &&
 					(this.props.electionInfo[index]['numStart'] == this.props.electionInfo[index]['numAdmin']) &&
 					(this.props.electionInfo[index]['numStart'] != this.props.electionInfo[index]['numFinish']) &&
 					(this.props.electionInfo[index]['isVisible']) != 0) {
+					
+					const v = await axios.get(constants.ADDRESS + '/electionVisibility',
+					{ 
+						params: {
+							election_address:address
+						}
+					});
+		
+					const isV = v.data[0].is_visible
+
+					if(isV == 1){
+					anythingToShow = true
+
 					return <CardUser
 						key={index}
 						id={index}
 						name={this.props.electionInfo[index]['name']}
 						address={address} />;
 					} 
-				})
-
-			var nothingToShow = true
-			for (var i = 0; i < elections.length; i++) { 
-				if((typeof elections[i] !== 'undefined') &&  (this.props.electionInfo[i]['isVisible'] != 0)){
-					nothingToShow = false
 				}
-			}
+			})
 
-			if(nothingToShow) {
+			// var nothingToShow = true
+			// for (var i = 0; i < elections.length; i++) { 
+			// 	if((typeof elections[i] !== 'undefined') &&  (this.props.electionInfo[i]['isVisible'] != 0)){
+			// 		nothingToShow = false
+			// 	}
+			// }
+
+			if(!anythingToShow) {
 				return <Message
 						style={{width:'500px'}}
 						icon='coffee'

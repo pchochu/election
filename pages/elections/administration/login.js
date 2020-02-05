@@ -81,9 +81,9 @@ class Login extends Component{
 		}
 
 	onSubmit = async event => {
+
 		event.preventDefault();
 		this.setState({ errorMessage: '' })
-		this.setState({ key: '' })
 
 		if (this.state.login === '') {
 			this.setState({ errorMessage: 'Nevyplnený login' })
@@ -96,6 +96,18 @@ class Login extends Component{
 		}
 
 		try{
+			// let log = await axios.post(constants.ADDRESS + '/login',
+			// { 
+			// 		username:this.state.login,
+			// 		password: this.state.password,
+			// })
+
+
+			// console.log(log.data.response)
+			// if(log.data.response == 'notAuth'){
+			// 	this.setState({errorMessage: 'Nespavne prihlasovacie udaje'})
+			// 	return
+			// } 
 
 			let res = await axios.post(constants.ADDRESS + '/authenticate',
 			{ 
@@ -105,11 +117,8 @@ class Login extends Component{
 					type:this.props.type
 			}).then(res => localStorage.setItem('pef-volby-jwt', res.data))
 
-			/*
-			if(res.data.response == 'notAuth'){
-				this.setState({errorMessage: 'Nespavne prihlasovacie udaje'})
-				return
-			} */
+
+
 			if(this.props.type == 1){
 				Router.pushRoute(`/elections/administration/authenticationElection/`)
 			} else if(this.props.type == 2){
@@ -146,7 +155,7 @@ class Login extends Component{
 			return(
 				<Layout>
 					<h3>Prihlasenie</h3>
-						<Form onSubmit={this.onSubmit} error={!!this.state.errorMessage} success={!!this.state.key}>
+						<Form onSubmit={this.onSubmit} error={!!this.state.errorMessage}>
 							<Form.Field required>
 								<label>xlogin</label>
 								<Input 
@@ -165,6 +174,7 @@ class Login extends Component{
 									onChange={event =>{this.setState({errorMessage:''}), this.setState({password: event.target.value})}}
 								/>
 							</Form.Field>
+							<Message error header="Ojoj, niečo sa pokazilo!" content={this.state.errorMessage} />
 							<Button color={constants.COLOR} >Login</Button>	
 						</Form>
 				</Layout>
