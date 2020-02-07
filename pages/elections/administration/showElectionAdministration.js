@@ -30,8 +30,6 @@ class Administration extends Component{
             }).then( e => {
                 this.setState({token:jwt})
             }).catch(error => {
-
-                console.log("Neulozeny token")
                 Router.pushRoute(`/elections/administration/login/1`);
             })
         } else {

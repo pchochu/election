@@ -651,7 +651,6 @@ const newCandidate = async(props) => {
 	const pool = connection.getPool();
 	try{
 		console.log('DB')
-		console.log(props.candidate_election_id)
 		sql = `INSERT INTO candidate (first_name, last_name, description, elected, election_address, number_of_votes_hash, candidate_contract_id) VALUES (
 			?,?,?,'0',?,?,?)`
 		var inserts = [props.first_name, props.last_name, props.description, props.address, props.hashed_number, props.candidate_election_id];

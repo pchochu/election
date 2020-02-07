@@ -4,7 +4,7 @@ const { Pool, Client } = require('pg')
 const getPool = () => {
 	return new Pool({
   user: 'root',
-  host: '127.0.0.1', //database 127.0.0.1
+  host: 'database', //database 127.0.0.1
   database: 'election',
   password: 'docker',
   port: 5432,

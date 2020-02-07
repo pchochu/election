@@ -66,3 +66,6 @@ CREATE TABLE eligibleVoter(
                 id_voter text NOT NULL,
 				isAdmin text NOT NULL
 );
+
+INSERT INTO eligiblevoter (id_election, id_voter, isAdmin)
+VALUES ('0', 'xchochul', '2');

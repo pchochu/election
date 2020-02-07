@@ -60,16 +60,16 @@ class CandidateNew extends Component{
 
 		try{
 
-			// let log = await axios.post(constants.ADDRESS + '/login',
-			// { 
-			// 		username:this.state.login,
-			// 		password: this.state.password,
-			// })
+			let log = await axios.post(constants.ADDRESS + '/login',
+			{ 
+					username:this.state.login,
+					password: this.state.password,
+			})
 
-			// if(log.data.response == 'notAuth'){
-			// 	this.setState({errorMessage: 'Nespavne prihlasovacie udaje'})
-			// 	return
-			// } 
+			if(log.data.response == 'notAuth'){
+				this.setState({errorMessage: 'Nespavne prihlasovacie udaje'})
+				return
+			} 
 
 			let isAuth = await axios.post(constants.ADDRESS + '/authenticate',
 			{ 

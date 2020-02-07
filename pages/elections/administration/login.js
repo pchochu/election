@@ -42,7 +42,6 @@ class Login extends Component{
 				}).then( e => {
 					Router.pushRoute(`/elections/${address}/administrationElections/`)
 				}).catch(error => {
-					console.log("Neulozeny token")
 					this.setState({loading:false})
 				})} else if(this.props.type == 2 && jwt){
 					await axios.post(constants.ADDRESS +  '/authenticateFactory', 
@@ -54,7 +53,6 @@ class Login extends Component{
 					}).then( e => {
 						Router.pushRoute(`/elections/${address}/administrationFactory/`)
 					}).catch(error => {
-						console.log("Neulozeny token")
 						this.setState({loading:false})
 					})
 			}
@@ -96,18 +94,16 @@ class Login extends Component{
 		}
 
 		try{
-			// let log = await axios.post(constants.ADDRESS + '/login',
-			// { 
-			// 		username:this.state.login,
-			// 		password: this.state.password,
-			// })
+			let log = await axios.post(constants.ADDRESS + '/login',
+			{ 
+					username:this.state.login,
+					password: this.state.password,
+			})
 
-
-			// console.log(log.data.response)
-			// if(log.data.response == 'notAuth'){
-			// 	this.setState({errorMessage: 'Nespavne prihlasovacie udaje'})
-			// 	return
-			// } 
+			if(log.data.response == 'notAuth'){
+				this.setState({errorMessage: 'Nespavne prihlasovacie udaje'})
+				return
+			} 
 
 			let res = await axios.post(constants.ADDRESS + '/authenticate',
 			{ 

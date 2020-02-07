@@ -29,7 +29,6 @@ class SubmitResultsProposal extends Component{
             }).then( e => {
                 
             }).catch(error => {
-                console.log("Neulozeny token")
                 Router.pushRoute(`/elections/administration/login/2`);
             })
         } else {
