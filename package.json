@@ -15,7 +15,7 @@
     "@garbados/merkle-tree": "^1.0.3-alpha",
     "ajv": "^5.0.0",
     "assign-symbols": "^2.0.2",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "babel-polyfill": "^6.26.0",
     "body-parser": "^1.18.3",
     "convert-csv-to-array": "^1.0.3",
